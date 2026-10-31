@@ -20,8 +20,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:#cfe0c4;font-family:Fr
   background-image:radial-gradient(rgba(140,100,50,.06) 1px,transparent 1px);background-size:5px 5px}
 button,select{font-family:inherit;color:var(--ink);background:var(--paper-2);border:2px solid var(--line);border-radius:10px;padding:4px 10px;cursor:pointer;font-size:14px}
 button:hover{background:#fff6e0}
+button:disabled{opacity:.45;cursor:not-allowed}
 button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-#top{position:fixed;left:16px;top:16px;padding:12px 14px;width:270px;font-size:14px;z-index:5}
+button.warn{border-color:#c0583a;color:#a8432a}
+#top{position:fixed;left:16px;top:16px;padding:12px 14px;width:290px;font-size:14px;z-index:5}
 #top h1{margin:0 0 6px;font-size:22px;font-weight:600;letter-spacing:.3px}
 #top h1 span{font-weight:400;color:var(--ink-soft)}
 #clock{font-size:20px;font-weight:500}
@@ -29,8 +31,10 @@ button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .row{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap}
 .row>span{min-width:70px;color:var(--ink-soft)}
 .row button{padding:3px 8px}
-#brainPanel{position:fixed;right:16px;top:16px;width:380px;padding:10px 12px 8px;z-index:5;background-color:#141826;color:#e7e3d6;border-color:#3a3f57;
-  background-image:radial-gradient(rgba(255,255,255,.04) 1px,transparent 1px)}
+.money{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding:5px 9px;border-radius:10px;background:var(--paper-2)}
+.money b{font-size:18px}
+#brainPanel{position:fixed;right:16px;top:16px;width:390px;max-height:calc(100vh - 32px);overflow:auto;padding:10px 12px 8px;z-index:5;background-color:#141826;color:#e7e3d6;border-color:#3a3f57;
+  background-image:radial-gradient(rgba(255,255,255,.04) 1px,transparent 1px);scrollbar-width:thin}
 #brainPanel .bp-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 #bpName{font-size:18px}
 #bpThought{display:block;color:#c9c2ad;font-size:13px;margin-top:2px;min-height:17px}
@@ -39,27 +43,37 @@ button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .bar{font-size:11px;color:#b9b3a0}
 .bar i{display:block;height:7px;border-radius:5px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:2px}
 .bar i b{display:block;height:100%;border-radius:5px}
-#bpDecide{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 8px;margin:0 0 8px;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.04)}
-#bpDecide:empty{display:none}
+#bpDecide{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 8px;margin:0 0 8px;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.04)}
+#bpDecide:empty,#bpInfoRow.empty,#bpActs.empty{display:none}
 #bpDecide .dt{grid-column:1/-1;font-size:11px;color:#8f8a9c;text-transform:uppercase;letter-spacing:.6px}
 #bpDecide .bar.win{color:#fff3c4;font-weight:600}
 #bpDecide .bar.win i{box-shadow:0 0 0 1px #ffd34d}
-#brain{width:100%;height:290px;display:block;border-radius:10px;background:#0b0e18;cursor:grab}
+#bpInfoRow{display:flex;gap:8px;margin-bottom:8px}
+#bpInfo{flex:1;display:grid;grid-template-columns:auto 1fr;gap:1px 8px;font-size:11.5px;color:#d6d0bd;align-content:start;margin:0}
+#bpInfo dt{color:#8f8a9c}
+#bpInfo dd{margin:0}
+#mmapWrap{text-align:center;font-size:10px;color:#8f8a9c}
+#mmap{width:118px;height:118px;border-radius:8px;background:#0b0e18;display:block}
+#bpActs{display:flex;gap:6px;margin-bottom:8px}
+#bpActs button{flex:1;font-size:12.5px;padding:4px 4px}
+#brain{width:100%;height:220px;display:block;border-radius:10px;background:#0b0e18;cursor:grab}
 .legend{display:flex;justify-content:space-between;font-size:11px;color:#9d97a8;margin-top:5px;gap:6px;flex-wrap:wrap}
 .legend em{font-style:normal}
 #bpBody.hide{display:none}
 #bottom{position:fixed;left:16px;right:16px;bottom:16px;display:flex;gap:10px;align-items:flex-end;z-index:5;pointer-events:none}
 #bottom>*{pointer-events:auto}
-#actions{padding:10px;display:flex;flex-direction:column;gap:7px;min-width:210px}
+#actions{padding:10px;display:flex;flex-direction:column;gap:7px;min-width:230px}
 #actions button{text-align:left;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:15px;padding:6px 10px}
 #actions button small{font-size:12px;color:var(--ink-soft)}
 .lvl{width:60px;height:8px;border-radius:5px;background:#e3d3b0;overflow:hidden;display:inline-block}
 .lvl b{display:block;height:100%}
 #roster{display:flex;gap:6px;overflow-x:auto;padding:4px 2px;flex:1;scrollbar-width:thin}
-.sh{flex:0 0 auto;width:92px;padding:6px 7px;cursor:pointer;font-size:13px;border-radius:12px}
+.sh{flex:0 0 auto;width:100px;padding:6px 7px;cursor:pointer;font-size:13px;border-radius:12px}
 .sh.sel{border-color:var(--ink);transform:translateY(-3px)}
 .sh.dead{opacity:.5;filter:grayscale(1)}
-.sh .nm{display:flex;justify-content:space-between;white-space:nowrap;overflow:hidden}
+.sh .nm{display:flex;justify-content:space-between;white-space:nowrap;overflow:hidden;gap:4px}
+.sh .nm b{overflow:hidden;text-overflow:ellipsis}
+.sh .tags{font-size:11px;min-height:14px;color:var(--ink-soft)}
 .mini{height:5px;border-radius:3px;background:#e3d3b0;margin-top:3px;overflow:hidden}
 .mini b{display:block;height:100%}
 #hint{position:fixed;left:50%;top:16px;transform:translateX(-50%);padding:6px 14px;font-size:13px;color:var(--ink);z-index:4;white-space:nowrap}
@@ -70,13 +84,25 @@ button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 #over[hidden]{display:none}
 #over .card{padding:24px 28px;text-align:center;max-width:360px}
 #over h2{margin:0 0 8px}
+.modal{position:fixed;inset:0;display:grid;place-items:center;background:rgba(30,20,10,.35);z-index:15}
+.modal[hidden]{display:none}
+.dwrap{width:min(600px,92vw);max-height:82vh;display:flex;flex-direction:column;padding:12px 14px;gap:8px}
+.dhead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.dhead b{font-size:18px}
+#dList{overflow:auto;font-size:14px;flex:1}
+.de{display:flex;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line)}
+.de time{color:var(--ink-soft);min-width:96px;font-size:12px;padding-top:2px}
+#dChart[hidden],#dList[hidden]{display:none}
+#chart{width:100%;height:280px;display:block}
+.clegend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--ink-soft);margin-top:4px}
+.clegend i{display:inline-block;width:14px;height:4px;border-radius:2px;vertical-align:middle;margin-right:4px}
 @media (max-width:820px){
   #top{width:auto;right:16px;padding:8px 10px;font-size:12px}
   #top h1{font-size:17px}
   #clock{font-size:15px}
   #hint{display:none}
-  #brainPanel{top:auto;bottom:150px;right:16px;left:16px;width:auto}
-  #brain{height:200px}
+  #brainPanel{top:auto;bottom:150px;right:16px;left:16px;width:auto;max-height:45vh}
+  #brain{height:180px}
   #bottom{flex-direction:column;align-items:stretch}
   #actions{flex-direction:row;flex-wrap:wrap;min-width:0}
   #actions button{flex:1}
@@ -92,6 +118,7 @@ button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   <div id="clock">—</div>
   <div id="place">📍 a localizar…</div>
   <div id="wx">☁️ a ver o tempo…</div>
+  <div class="money"><span>💶 <b id="money">€0</b></span><span id="season">—</span></div>
   <div class="row"><span>Velocidade</span>
     <button data-speed="1" class="on">1×</button><button data-speed="60">60×</button><button data-speed="600">600×</button>
     <button id="btnNow" title="Voltar à hora real">⟲ agora</button>
@@ -100,7 +127,13 @@ button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
     <select id="wxsel">
       <option value="auto">Real (localização)</option><option value="clear">Céu limpo</option><option value="cloudy">Nublado</option>
       <option value="rain">Chuva</option><option value="storm">Trovoada</option><option value="snow">Neve</option><option value="fog">Nevoeiro</option>
+      <option value="hot">Onda de calor</option><option value="cold">Frio intenso</option>
     </select>
+  </div>
+  <div class="row">
+    <button id="btnDog" title="Guiar o cão pastor: arrasta no pasto para o mandar">🐕 Guiar cão</button>
+    <button id="btnDiary" title="Diário e gráficos">📖 Diário</button>
+    <button id="btnNotify" title="Avisos no telemóvel/computador">🔔</button>
     <button id="mute" title="Som">🔊</button><button id="paint" class="on" title="Bordas pintadas">🎨</button>
   </div>
 </header>
@@ -113,27 +146,38 @@ button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   <div id="bpBody">
     <div id="bpBars"></div>
     <div id="bpDecide"></div>
+    <div id="bpInfoRow" class="empty"><dl id="bpInfo"></dl><div id="mmapWrap"><canvas id="mmap"></canvas>mapa mental</div></div>
+    <div id="bpActs" class="empty"><button id="aShear">✂️ Tosquiar</button><button id="aTreat">💊 Tratar</button><button id="aPet">🤚 Afagar</button></div>
     <canvas id="brain"></canvas>
     <div class="legend"><em>🟠 excitatória · 🔵 inibitória</em><em id="bpStats"></em></div>
-    <div class="legend"><em>Lobos laterais = sentidos · centro = impulsos · baixo = motores</em></div>
+    <div class="legend"><em>Lobos laterais = sentidos · centro = impulsos e decisões · baixo = motores</em></div>
   </div>
 </aside>
 
-<div id="hint" class="card">Arrasta uma ovelha para a mudar de sítio · clica para ver o cérebro · arrasta o pasto para rodar</div>
+<div id="hint" class="card">Arrasta uma ovelha para a mudar de sítio · carrega sem mexer para lhe fazer festas · clica para ver o cérebro</div>
 <div id="toast" class="card"></div>
 <div id="tag" class="card"></div>
 
 <footer id="bottom">
   <div id="actions" class="card">
-    <button id="btnHay"><span>🌾 Encher feno</span><span class="lvl"><b id="hayLvl" style="background:var(--food)"></b></span></button>
-    <button id="btnWater"><span>💧 Encher água</span><span class="lvl"><b id="waterLvl" style="background:var(--water)"></b></span></button>
-    <button id="btnSeed"><span>🌱 Semear pasto</span><small id="seedCd"></small></button>
+    <button id="btnHay"><span>🌾 Encher feno <small id="hayCost"></small></span><span class="lvl"><b id="hayLvl" style="background:var(--food)"></b></span></button>
+    <button id="btnWater"><span>💧 Encher água <small>poço</small></span><span class="lvl"><b id="waterLvl" style="background:var(--water)"></b></span></button>
+    <button id="btnSeed"><span>🌱 Semear pasto <small>€8</small></span><small id="seedCd"></small></button>
+    <button id="btnFence"><span>🔨 Reparar cerca</span><small id="fenceInfo"></small></button>
     <button id="btnReset"><span>↺ Recomeçar</span><small id="alive"></small></button>
   </div>
   <div id="roster"></div>
 </footer>
 
-<div id="over" hidden><div class="card"><h2>O rebanho morreu 🥀</h2><p>As ovelhas precisam de comida e água todos os dias. Tenta outra vez — e volta a visitá-las!</p><button id="btnAgain">Novo rebanho</button></div></div>
+<div id="diary" class="modal" hidden><div class="card dwrap">
+  <div class="dhead"><b>📖 Diário do rebanho</b><div><button data-tab="list" class="on">Diário</button> <button data-tab="chart">Gráficos</button> <button id="dClose">✕</button></div></div>
+  <div id="dList"></div>
+  <div id="dChart" hidden><canvas id="chart"></canvas>
+    <div class="clegend"><span><i style="background:var(--health)"></i>vida média</span><span><i style="background:var(--food)"></i>comida média</span><span><i style="background:var(--water)"></i>água média</span><span><i style="background:#5d9a3a"></i>ovelhas vivas (×10)</span><span><i style="background:#8a6a42"></i>dinheiro (÷2)</span></div>
+  </div>
+</div></div>
+
+<div id="over" hidden><div class="card"><h2>O rebanho morreu 🥀</h2><p>As ovelhas precisam de comida, água, abrigo e cuidados. Tenta outra vez — e volta a visitá-las!</p><button id="btnAgain">Novo rebanho</button></div></div>
 
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
@@ -150,29 +194,42 @@ const lerp=(a,b,t)=>a+(b-a)*t;
 const sig=x=>1/(1+Math.exp(-x));
 const smooth=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);};
 const wrapA=a=>{while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a;};
+const lerpA=(a,b,t)=>a+wrapA(b-a)*t;
 function rng(seed){let s=(seed>>>0)||1;return()=>{s=(s^(s<<13))>>>0;s=(s^(s>>>17))>>>0;s=(s^(s<<5))>>>0;return s/4294967296;};}
 const gauss=()=>{let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);};
 const $=id=>document.getElementById(id);
+const dist2=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 
 /* ============================================================
    Calibração (taxas por HORA de simulação — 1× = tempo real)
    ============================================================ */
 const R=26;                 // raio da cerca
+const MAX_SHEEP=10;
 const CFG={
-  hungerPerH:10,            // saciedade 100→0 em ~10 h
+  hungerPerH:10,            // nutrição 100→0 em ~10 h
   thirstPerH:12.5,          // hidratação 100→0 em ~8 h
-  heatThirst:1.35,          // multiplicador quando > 25 °C
-  grassEatPerH:4,           // células de relva comidas por hora a pastar (refeição de ~45 min)
-  grassFood:12,             // saciedade por célula cheia
-  hayGainPerH:240, hayUse:0.1,     // feno: refeição de ~10 min; 100 unidades ≈ 1000 de saciedade
-  drinkGainPerH:1200, waterUse:0.08,// beber de 50% a 90% leva ~2 min; bebedouro cheio ≈ 10 h para 10 ovelhas
+  grassEatPerH:4,           // células de relva comidas por hora a pastar
+  grassFood:12,             // enchimento do rúmen por célula cheia (× tipo de relva)
+  hayGainPerH:240, hayUse:0.1,
+  drinkGainPerH:1200, waterUse:0.08,
+  digestPerH:25, ruminateMul:1.6,  // o rúmen digere para a nutrição (mais depressa a ruminar deitada)
   dmgPerH:8, healPerH:3,    // sem comida ou sem água: vida 100→0 em ~12 h
-  grassRegrowPerH:1/(24*25),// relva comida volta a crescer em ~25 dias
+  coldDmgPerH:6,
+  grassRegrowPerH:1/(24*25),
   rainRegrow:4, rainFillPerH:4,
   fatiguePerH:3, walkFatiguePerH:3, restPerH:10,
-  seedCooldownH:6,
-  sleepMeta:0.45,           // a dormir gastam menos
-  maxVisualSpeed:60         // acima disto o tempo extra é simulado estatisticamente
+  seedCooldownH:24, seedAmount:0.15,
+  sleepMeta:0.45,
+  maxVisualSpeed:60,
+  // ciclo de vida
+  adultDays:14, oldDays:150, maxAgeDays:300,
+  woolPerDay:3.5,
+  gestationH:72, breedCdH:24*7, breedPerH:0.02,
+  // doenças
+  diseasePerH:0.0008, contagionPerH:0.05, recoverPerH:0.01,
+  // preços
+  price:{hayPerUnit:0.06,seed:8,treat:12,repair:5,woolPerUnit:0.4},
+  startMoney:80,
 };
 
 /* ============================================================
@@ -212,6 +269,7 @@ controls.screenSpacePanning=false;
 const gradTex=new THREE.DataTexture(new Uint8Array([95,175,255]),3,1,THREE.RedFormat);
 gradTex.minFilter=gradTex.magFilter=THREE.NearestFilter; gradTex.needsUpdate=true;
 const toon=(c,o={})=>new THREE.MeshToonMaterial({color:c,gradientMap:gradTex,...o});
+const shadowAll=g=>{g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});return g;};
 
 /* --- Luzes --- */
 const hemi=new THREE.HemisphereLight(0xcfe8ff,0x5d7a3a,1.0); scene.add(hemi);
@@ -295,35 +353,53 @@ const backdrop=new THREE.Mesh(new THREE.CylinderGeometry(175,175,130,96,1,true),
 backdrop.position.y=48; backdrop.renderOrder=-1; scene.add(backdrop);
 
 /* ============================================================
-   Chão + relva
+   Estações do ano
+   ============================================================ */
+const SEASONS=[
+  {name:'Primavera',art:'a',icon:'🌸',grow:1.6,temp:15},
+  {name:'Verão',art:'o',icon:'☀️',grow:0.7,temp:25},
+  {name:'Outono',art:'o',icon:'🍂',grow:1.0,temp:15},
+  {name:'Inverno',art:'o',icon:'❄️',grow:0.3,temp:7},
+];
+
+/* ============================================================
+   Chão + relva (com tipos: normal, trevo, flores)
    ============================================================ */
 const G=44, CELL=(2*R)/G;
 const grass=new Float32Array(G*G);
 const cellInside=new Uint8Array(G*G);
-for(let j=0;j<G;j++)for(let i=0;i<G;i++){const x=-R+(i+0.5)*CELL,z=-R+(j+0.5)*CELL;cellInside[j*G+i]=Math.hypot(x,z)<R-0.4?1:0;}
+const gtype=new Uint8Array(G*G);            // 0 erva · 1 trevo (mais nutritivo) · 2 flores (menos)
+const GT_MULT=[1,1.5,0.8], GT_NAME=['erva','trevo','flores'];
+for(let j=0;j<G;j++)for(let i=0;i<G;i++){const x=-R+(i+0.5)*CELL,z=-R+(j+0.5)*CELL,k=j*G+i;
+  cellInside[k]=Math.hypot(x,z)<R-0.4?1:0;
+  const n=Math.sin(x*0.21+1.7)*Math.cos(z*0.18-0.4)+0.5*Math.sin(x*0.07-z*0.11);
+  gtype[k]=n>0.75?1:n<-0.85?2:0;}
 function cellIdx(x,z){const i=Math.floor((x+R)/CELL),j=Math.floor((z+R)/CELL);if(i<0||j<0||i>=G||j>=G)return -1;const k=j*G+i;return cellInside[k]?k:-1;}
 function grassAt(x,z){const k=cellIdx(x,z);return k<0?0:grass[k];}
 
 const TS=240,TN=180;
 const tg=new THREE.PlaneGeometry(TS,TS,TN,TN); tg.rotateX(-Math.PI/2);
 const tpos=tg.attributes.position, tcol=new Float32Array(tpos.count*3);
-const insideV=[];const vNoise=new Float32Array(tpos.count);
-{const C=new THREE.Color(),c1=new THREE.Color(0x7fb04a),c2=new THREE.Color(0x5e9640),cFar=new THREE.Color(0x7ea37a);
- for(let i=0;i<tpos.count;i++){const x=tpos.getX(i),z=tpos.getZ(i);tpos.setY(i,H(x,z));
-   const n=0.5+0.5*Math.sin(x*0.7+Math.sin(z*0.5)*2)*Math.cos(z*0.6+x*0.13);vNoise[i]=n;
-   const r=Math.hypot(x,z);
-   if(r<R+0.6){insideV.push(i);}
-   C.copy(c1).lerp(c2,n).lerp(cFar,smooth(55,110,r)*0.6);tcol.set([C.r,C.g,C.b],i*3);}
-}
+const vNoise=new Float32Array(tpos.count),vX=new Float32Array(tpos.count),vZ=new Float32Array(tpos.count),vR=new Float32Array(tpos.count);
+for(let i=0;i<tpos.count;i++){const x=tpos.getX(i),z=tpos.getZ(i);tpos.setY(i,H(x,z));vX[i]=x;vZ[i]=z;vR[i]=Math.hypot(x,z);
+  vNoise[i]=0.5+0.5*Math.sin(x*0.7+Math.sin(z*0.5)*2)*Math.cos(z*0.6+x*0.13);}
 tg.setAttribute('color',new THREE.BufferAttribute(tcol,3));
 tg.computeVertexNormals();
 const ground=new THREE.Mesh(tg,toon(0xffffff,{vertexColors:true}));
 ground.receiveShadow=true; scene.add(ground);
-const DIRT=new THREE.Color(0xa58456),GRN=new THREE.Color(0x77b043),GRN2=new THREE.Color(0x5b9a3a);
+// paleta por estação [claro, escuro]
+const SEASON_GRN=[[0x80c24a,0x5ea23c],[0xa7bb54,0x86a142],[0x8fae48,0x6d8f3a],[0x7f9a62,0x62804e]];
+const DIRT=new THREE.Color(0xa58456),SNOWC=new THREE.Color(0xf2f6fb),FAR=new THREE.Color(0x7ea37a),CLOVER=new THREE.Color(0x3f8a3a),FLOW=new THREE.Color(0xa6b85a);
 function updateGroundColors(){
-  const C=new THREE.Color();
-  for(const i of insideV){const x=tpos.getX(i),z=tpos.getZ(i);const g=Math.hypot(x,z)<R?grassAt(x,z):0.8;
-    C.copy(GRN).lerp(GRN2,vNoise[i]);C.lerp(DIRT,clamp(1-g*1.4,0,1)*0.85);tcol[i*3]=C.r;tcol[i*3+1]=C.g;tcol[i*3+2]=C.b;}
+  const si=state.season??2,c1=new THREE.Color(SEASON_GRN[si][0]),c2=new THREE.Color(SEASON_GRN[si][1]),C=new THREE.Color(),sn=state.snow||0;
+  for(let i=0;i<tpos.count;i++){const r=vR[i];
+    C.copy(c1).lerp(c2,vNoise[i]);
+    if(r<R){const k=cellIdx(vX[i],vZ[i]);const g=k<0?0.8:grass[k];
+      if(k>=0&&gtype[k]===1)C.lerp(CLOVER,0.35);else if(k>=0&&gtype[k]===2)C.lerp(FLOW,0.3);
+      C.lerp(DIRT,clamp(1-g*1.4,0,1)*0.85);}
+    else C.lerp(FAR,smooth(55,110,r)*0.6);
+    if(sn>0)C.lerp(SNOWC,clamp(sn*(0.7+0.5*vNoise[i]),0,1));
+    tcol[i*3]=C.r;tcol[i*3+1]=C.g;tcol[i*3+2]=C.b;}
   tg.attributes.color.needsUpdate=true;
 }
 
@@ -331,52 +407,94 @@ function updateGroundColors(){
 const bladeGeo=new THREE.ConeGeometry(0.075,0.6,3); bladeGeo.translate(0,0.3,0);
 const blades=[];{const r=rng(9);
   for(let k=0;k<G*G;k++){if(!cellInside[k])continue;const i=k%G,j=(k/G)|0;
-    for(let n=0;n<5;n++){const x=-R+(i+r())*CELL,z=-R+(j+r())*CELL;blades.push({k,x,z,y:H(x,z)-0.02,ry:r()*6.3,tx:(r()-0.5)*0.5,tz:(r()-0.5)*0.5,s:0.7+r()*0.6});}}}
+    for(let n=0;n<5;n++){const x=-R+(i+r())*CELL,z=-R+(j+r())*CELL;blades.push({k,x,z,y:H(x,z)-0.02,ry:r()*6.3,tx:(r()-0.5)*0.5,tz:(r()-0.5)*0.5,s:0.7+r()*0.6,flower:gtype[k]===2&&r()<0.35});}}}
 const bladeMesh=new THREE.InstancedMesh(bladeGeo,toon(0xffffff),blades.length);
 bladeMesh.receiveShadow=true;
-{const C=new THREE.Color(),r=rng(3);blades.forEach((b,i)=>{C.setHSL(0.24+r()*0.06,0.5+r()*0.2,0.33+r()*0.14);bladeMesh.setColorAt(i,C);});}
+const FLOWER_COLS=[0xf7d84a,0xe86f8a,0xffffff,0xb38ee8];
+function colorBlades(){const C=new THREE.Color(),r=rng(3),si=state.season??2;
+  const hueShift=[0.02,-0.04,-0.03,-0.01][si],sat=[0.1,-0.12,-0.05,-0.18][si];
+  blades.forEach((b,i)=>{
+    if(b.flower&&si<2)C.setHex(FLOWER_COLS[(r()*4)|0]);
+    else if(gtype[b.k]===1)C.setHSL(0.30+r()*0.03,0.55+sat,0.26+r()*0.08);
+    else C.setHSL(0.24+r()*0.06+hueShift,0.5+r()*0.2+sat,0.33+r()*0.14);
+    bladeMesh.setColorAt(i,C);});
+  bladeMesh.instanceColor.needsUpdate=true;}
 scene.add(bladeMesh);
 const dummy=new THREE.Object3D();
 function updateBlades(){
+  const sn=1-(state.snow||0)*0.85,win=(state.season===3)?0.75:1;
   for(let i=0;i<blades.length;i++){const b=blades[i],l=grass[b.k];
-    dummy.position.set(b.x,b.y,b.z);dummy.rotation.set(b.tx,b.ry,b.tz);const s=0.08+l*1.05*b.s;dummy.scale.set(1,s,1);dummy.updateMatrix();bladeMesh.setMatrixAt(i,dummy.matrix);}
+    dummy.position.set(b.x,b.y,b.z);dummy.rotation.set(b.tx,b.ry,b.tz);const s=(0.08+l*1.05*b.s)*sn*win;dummy.scale.set(b.flower?1.4:1,s,b.flower?1.4:1);dummy.updateMatrix();bladeMesh.setMatrixAt(i,dummy.matrix);}
   bladeMesh.instanceMatrix.needsUpdate=true;
 }
 
-/* flores fora da cerca */
-{const r=rng(77),geo=new THREE.IcosahedronGeometry(0.13,0),n=700,m=new THREE.InstancedMesh(geo,toon(0xffffff),n),C=new THREE.Color();
+/* flores fora da cerca (só na primavera/verão) */
+const outerFlowers=(()=>{const r=rng(77),geo=new THREE.IcosahedronGeometry(0.13,0),n=700,m=new THREE.InstancedMesh(geo,toon(0xffffff),n),C=new THREE.Color();
  const pal=[0xffffff,0xf7d84a,0xe86f8a,0xb38ee8,0xf2a25c];
  for(let i=0;i<n;i++){const a=r()*6.283,rr=R+2+r()*40;const x=Math.cos(a)*rr,z=Math.sin(a)*rr;dummy.position.set(x,H(x,z)+0.12,z);dummy.rotation.set(0,0,0);dummy.scale.setScalar(0.7+r()*0.8);dummy.updateMatrix();m.setMatrixAt(i,dummy.matrix);C.setHex(pal[(r()*pal.length)|0]);m.setColorAt(i,C);}
- scene.add(m);}
+ scene.add(m);return m;})();
 
 /* ============================================================
-   Árvores, cerca, celeiro, comedouros
+   Árvores (folhas mudam com a estação), cerca, abrigo, celeiro, comedouros
    ============================================================ */
 const trunkMat=toon(0x7a5332), leafMats=[toon(0x4f8f3a),toon(0x5fa144),toon(0x3f7d34),toon(0x6aa84f)], pineMat=toon(0x2f6b3c);
+const trees=[];
 function makeTree(x,z,s,r,pine){
   const g=new THREE.Group();g.position.set(x,H(x,z)-0.2,z);g.scale.setScalar(s);
   const tr=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.34,2.4,6),trunkMat);tr.position.y=1.2;g.add(tr);
+  const foliage=[];
   if(pine){for(let i=0;i<3;i++){const c=new THREE.Mesh(new THREE.ConeGeometry(1.6-i*0.4,2.2,7),pineMat);c.position.y=2.3+i*1.1;g.add(c);}}
-  else{const n=3+((r()*3)|0);for(let i=0;i<n;i++){const f=new THREE.Mesh(new THREE.IcosahedronGeometry(1.0+r()*0.6,1),leafMats[(r()*4)|0]);
-    f.position.set((r()-0.5)*1.6,2.8+r()*1.4,(r()-0.5)*1.6);f.scale.y=0.85;g.add(f);}}
-  g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
-  g.rotation.y=r()*6.28;scene.add(g);return g;
+  else{
+    for(let i=0;i<3;i++){const br=new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.11,1.5,5),trunkMat);const a=i*2.1+r();br.position.set(Math.cos(a)*0.35,2.7,Math.sin(a)*0.35);br.rotation.set(Math.sin(a)*0.6,0,-Math.cos(a)*0.6);g.add(br);}
+    const n=3+((r()*3)|0);for(let i=0;i<n;i++){const f=new THREE.Mesh(new THREE.IcosahedronGeometry(1.0+r()*0.6,1),leafMats[(r()*4)|0]);
+      f.position.set((r()-0.5)*1.6,2.8+r()*1.4,(r()-0.5)*1.6);f.scale.y=0.85;g.add(f);foliage.push(f);}}
+  shadowAll(g);
+  g.rotation.y=r()*6.28;scene.add(g);trees.push({x,z,s,pine,foliage,g});return g;
 }
 {const r=rng(5);let placed=0;
  for(let t=0;t<400&&placed<110;t++){const a=r()*Math.PI*2,rr=34+Math.pow(r(),0.8)*55;const x=Math.cos(a)*rr,z=Math.sin(a)*rr;
-   if(z>0&&Math.abs(x)<14&&rr<50)continue;           // deixa a vista principal livre
-   if(Math.hypot(x-0,z+44)<11)continue;               // espaço do celeiro
+   if(z>0&&Math.abs(x)<14&&rr<50)continue;
+   if(Math.hypot(x-0,z+44)<11)continue;
    makeTree(x,z,0.9+r()*0.9,r,r()<0.3);placed++;}}
 const innerTree={x:-15,z:-9,r:1.0};makeTree(innerTree.x,innerTree.z,1.35,rng(11),false);
+const LEAF_COLS=[[0x7cc34e,0x95d265,0x63ad45,0xa6d878],[0x4f8f3a,0x5fa144,0x3f7d34,0x6aa84f],[0xd98b2b,0xc8562a,0xe0b43c,0xb5652a],[0x8a7a5a,0x8a7a5a,0x8a7a5a,0x8a7a5a]];
+function applySeason(si){
+  leafMats.forEach((m,i)=>m.color.setHex(LEAF_COLS[si][i]));
+  for(const t of trees)if(!t.pine)t.foliage.forEach((f,j)=>{f.visible=si!==3;f.scale.setScalar(si===2?0.92:1);f.scale.y=0.85;});
+  outerFlowers.visible=si<2;
+  colorBlades();updateGroundColors();updateBlades();
+}
 
-/* cerca */
+/* cerca — dividida em troços que o vento pode partir */
 const woodMat=toon(0xa07448),woodDark=toon(0x8a6038);
+const FENCE=[];
 {const n=Math.round(2*Math.PI*R/2.3),posts=[];
  for(let i=0;i<n;i++){const a=i/n*Math.PI*2,x=Math.cos(a)*R,z=Math.sin(a)*R,y=H(x,z);
-   const p=new THREE.Mesh(new THREE.BoxGeometry(0.24,1.5,0.24),woodDark);p.position.set(x,y+0.6,z);p.rotation.y=-a;p.castShadow=true;scene.add(p);posts.push(new THREE.Vector3(x,y,z));}
- for(let i=0;i<n;i++){const A=posts[i],B=posts[(i+1)%n];const len=A.distanceTo(B);
+   const p=new THREE.Mesh(new THREE.BoxGeometry(0.24,1.5,0.24),woodDark);p.position.set(x,y+0.6,z);p.rotation.y=-a;p.castShadow=true;scene.add(p);posts.push({v:new THREE.Vector3(x,y,z),m:p});}
+ for(let i=0;i<n;i++){const A=posts[i].v,B=posts[(i+1)%n].v;const len=A.distanceTo(B);const rails=[];
    for(const h of [0.55,1.05]){const rail=new THREE.Mesh(new THREE.BoxGeometry(0.09,0.14,len+0.1),woodMat);
-     rail.position.set((A.x+B.x)/2,(A.y+B.y)/2+h,(A.z+B.z)/2);rail.lookAt(B.x,B.y+h,B.z);rail.castShadow=true;scene.add(rail);}}}
+     rail.position.set((A.x+B.x)/2,(A.y+B.y)/2+h,(A.z+B.z)/2);rail.lookAt(B.x,B.y+h,B.z);rail.castShadow=true;scene.add(rail);rails.push(rail);}
+   const fallen=new THREE.Mesh(new THREE.BoxGeometry(0.09,0.14,len*0.9),woodMat);
+   fallen.position.set((A.x+B.x)/2*1.04,(A.y+B.y)/2+0.08,(A.z+B.z)/2*1.04);fallen.lookAt(B.x*1.06,B.y+0.08,B.z*1.06);fallen.rotateY(0.5);fallen.visible=false;scene.add(fallen);
+   FENCE.push({i,rails,fallen,post:posts[(i+1)%n].m,hp:1});}}
+const fenceSegAt=a=>Math.floor((((a%(2*Math.PI))+2*Math.PI)%(2*Math.PI))/(2*Math.PI)*FENCE.length)%FENCE.length;
+const fenceBroken=a=>FENCE[fenceSegAt(a)].hp<0.35;
+const brokenCount=()=>FENCE.filter(f=>f.hp<0.35).length;
+function setFenceVisual(f){const b=f.hp<0.35;f.rails.forEach(r=>r.visible=!b);f.fallen.visible=b;f.post.rotation.z=b?0.35:0;}
+function breakRandomFence(){const ok=FENCE.filter(f=>f.hp>=0.35);if(!ok.length)return;const f=ok[(Math.random()*ok.length)|0];f.hp=0.2;setFenceVisual(f);
+  alertEv('cerca','🌬️','O vento partiu um troço da cerca! As ovelhas podem fugir e a raposa entrar.',{cooldownH:1});}
+function repairFence(){FENCE.forEach(f=>{f.hp=1;setFenceVisual(f);});}
+
+/* abrigo coberto dentro do cercado */
+const SHED={x:12.5,z:-12.5,hx:2.8,hz:1.8}, SHED_WALL={x:12.5,z:-14.3,hx:2.8,hz:0.14};
+{const g=new THREE.Group();g.position.set(SHED.x,H(SHED.x,SHED.z)-0.05,SHED.z);
+ for(const [sx,sz] of [[-1,-1],[1,-1],[-1,1],[1,1]]){const h=sz<0?2.3:2.75;const p=new THREE.Mesh(new THREE.BoxGeometry(0.2,h,0.2),woodDark);p.position.set(sx*SHED.hx,h/2-0.1,sz*SHED.hz);g.add(p);}
+ const roof=new THREE.Mesh(new THREE.BoxGeometry(SHED.hx*2+0.7,0.14,SHED.hz*2+0.9),toon(0x7a4b2e));roof.position.y=2.55;roof.rotation.x=-0.13;g.add(roof);
+ const wall=new THREE.Mesh(new THREE.BoxGeometry(SHED.hx*2,1.7,0.12),woodMat);wall.position.set(0,0.75,-SHED.hz);g.add(wall);
+ for(const sx of [-1,1]){const side=new THREE.Mesh(new THREE.BoxGeometry(0.1,1.1,SHED.hz*1.2),woodMat);side.position.set(sx*SHED.hx,0.5,-SHED.hz*0.4);g.add(side);}
+ const straw=new THREE.Mesh(new THREE.BoxGeometry(SHED.hx*2,0.05,SHED.hz*2),toon(0xd9c27a));straw.position.y=0.04;g.add(straw);
+ shadowAll(g);scene.add(g);}
+const inShed=(x,z)=>Math.abs(x-SHED.x)<SHED.hx&&Math.abs(z-SHED.z)<SHED.hz;
 
 /* celeiro */
 {const g=new THREE.Group(),x=0,z=-44;g.position.set(x,H(x,z)-0.3,z);
@@ -384,28 +502,26 @@ const woodMat=toon(0xa07448),woodDark=toon(0x8a6038);
  const roof=new THREE.Mesh(new THREE.CylinderGeometry(5.6,5.6,7.6,3,1),toon(0x5b3a2a));roof.rotation.x=-Math.PI/2;roof.scale.set(1,1,0.6);roof.position.y=5+5.6*0.5*0.6;
  g.add(roof);const door=new THREE.Mesh(new THREE.BoxGeometry(3,3.4,0.2),toon(0xf2e8d5));door.position.set(0,1.7,3.55);g.add(door);
  const d2=new THREE.Mesh(new THREE.BoxGeometry(2.6,3.0,0.22),toon(0x8e2f22));d2.position.set(0,1.6,3.6);g.add(d2);
- g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});scene.add(g);}
+ shadowAll(g);scene.add(g);}
 
 /* comedouro de feno e bebedouro */
 const HAY={x:7,z:9,hx:1.6,hz:0.5,level:60}, WATER={x:-7,z:9,hx:1.6,hz:0.5,level:70};
 function makeTrough(T,fillMat,isWater){
   const g=new THREE.Group();g.position.set(T.x,H(T.x,T.z),T.z);
-  const w=T.hx*2,d=T.hz*2,hgt=0.7;
+  const w=T.hx*2,d=T.hz*2;
   const base=new THREE.Mesh(new THREE.BoxGeometry(w,0.1,d),woodDark);base.position.y=0.25;g.add(base);
   for(const s of [-1,1]){const side=new THREE.Mesh(new THREE.BoxGeometry(w,0.5,0.1),woodMat);side.position.set(0,0.5,s*(d/2));g.add(side);
     const end=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.5,d),woodMat);end.position.set(s*(w/2),0.5,0);g.add(end);
     for(const t of [-1,1]){const leg=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.3,0.12),woodDark);leg.position.set(s*(w/2-0.15),0.12,t*(d/2-0.1));g.add(leg);}}
   const fill=new THREE.Mesh(new THREE.BoxGeometry(w-0.14,0.4,d-0.14),fillMat);fill.position.y=0.3;g.add(fill);
-  g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
-  if(isWater){fill.castShadow=false;}
+  shadowAll(g);if(isWater)fill.castShadow=false;
   scene.add(g);T.fill=fill;T.group=g;return g;
 }
 makeTrough(HAY,toon(0xe7c35a));
 makeTrough(WATER,new THREE.MeshPhongMaterial({color:0x4aa3e0,transparent:true,opacity:0.85,shininess:90}),true);
-// palhinhas soltas por cima do feno
 {const r=rng(8);const geo=new THREE.BoxGeometry(0.03,0.03,0.5);const n=60;const m=new THREE.InstancedMesh(geo,toon(0xf0d27a),n);
  for(let i=0;i<n;i++){dummy.position.set((r()-0.5)*2.9,0.2,(r()-0.5)*0.7);dummy.rotation.set(r()*0.6,r()*6.3,r()*0.6);dummy.scale.setScalar(1);dummy.updateMatrix();m.setMatrixAt(i,dummy.matrix);}
- HAY.fill.add(m);HAY.straw=m;}
+ HAY.fill.add(m);}
 function updateTroughs(){
   const h=clamp(HAY.level/100,0,1);HAY.fill.visible=h>0.01;HAY.fill.scale.y=Math.max(0.02,h);HAY.fill.position.y=0.3+0.2*(h-1)+0.02;
   const w=clamp(WATER.level/100,0,1);WATER.fill.visible=w>0.01;WATER.fill.scale.y=Math.max(0.02,w);WATER.fill.position.y=0.3+0.2*(w-1)+0.02;
@@ -414,67 +530,78 @@ function boxNear(T,x,z){const dx=x-T.x,dz=z-T.z,qx=clamp(dx,-T.hx,T.hx),qz=clamp
   return {x:T.x+qx,z:T.z+qz,d:Math.hypot(dx-qx,dz-qz)};}
 function pushOutBox(T,p,m){const dx=p.x-T.x,dz=p.z-T.z,qx=clamp(dx,-T.hx,T.hx),qz=clamp(dz,-T.hz,T.hz);
   let vx=dx-qx,vz=dz-qz,d=Math.hypot(vx,vz);
-  if(d<1e-4){ // dentro: empurra pelo eixo de menor penetração
-    const px=T.hx-Math.abs(dx),pz=T.hz-Math.abs(dz);if(px<pz)p.x=T.x+Math.sign(dx||1)*(T.hx+m);else p.z=T.z+Math.sign(dz||1)*(T.hz+m);return;}
+  if(d<1e-4){const px=T.hx-Math.abs(dx),pz=T.hz-Math.abs(dz);if(px<pz)p.x=T.x+Math.sign(dx||1)*(T.hx+m);else p.z=T.z+Math.sign(dz||1)*(T.hz+m);return;}
   if(d<m){p.x+=vx/d*(m-d);p.z+=vz/d*(m-d);}}
 
 /* ============================================================
    Cérebro — connectome com neurónios identificados + reservatório
    (inspirado nos simuladores do connectome da mosca da fruta: mesma
-    "cablagem" para todas as ovelhas, pesos com variação individual,
-    neurónios com integração de fuga — leaky rate model)
+    "cablagem" para todas as ovelhas, pesos herdados dos pais com
+    mutações, neurónios com integração de fuga — leaky rate model)
    ============================================================ */
-const SENS=['fome','sede','cansaço','relva aqui','feno ◀▶','feno perto','há feno','água ◀▶','água perto','há água','relva ◀▶','relva vista','rebanho ◀▶','isolada','cerca ◀▶','cerca perto','luz','chuva','agarrada','dor','ruído','olhar rnd','vaguear ◀▶','vizinha ◀▶','aperto'];
+const SENS=['fome','sede','cansaço','relva aqui','feno ◀▶','feno perto','há feno','água ◀▶','água perto','há água','relva ◀▶','relva vista','rebanho ◀▶','isolada','cerca ◀▶','cerca perto','luz','chuva','agarrada','dor','ruído','olhar rnd','vaguear ◀▶','vizinha ◀▶','aperto',
+  'frio','calor','abrigo ◀▶','abrigo perto','doente','predador ◀▶','predador perto','cão ◀▶','cão perto','dono ◀▶','dono perto','confiança','memória ◀▶','memória boa','líder ◀▶','rúmen','borrego'];
+const SI=Object.fromEntries(SENS.map((n,i)=>[n,i]));
 // [nome, função, viés, tau(s), {origem: peso}]
 const INTER=[
-  ['FOME','sig',-1.9,1.5,{'fome':4.0,'relva aqui':-0.3}],
-  ['SEDE','sig',-2.3,1.5,{'sede':4.6}],
-  ['MEDO','sig',-2.4,0.5,{'agarrada':5.5,'chuva':0.7,'dor':1.3}],
+  ['FOME','sig',-1.9,1.5,{'fome':4.0,'rúmen':-3.5,'relva aqui':-0.3}],   // rúmen cheio tira a fome
+  ['SEDE','sig',-2.3,1.5,{'sede':4.6,'calor':1.0}],
+  ['DESCONFIA','sig',1.7,2,{'confiança':-4}],
+  ['MEDO','sig',-2.4,0.5,{'agarrada':5.5,'chuva':0.5,'dor':1.3,'predador perto':5,'cão perto':1.2,'DONO PERIGO':2.5}],
+  ['FUGIR','sig',-2.4,0.4,{'predador perto':6.5,'cão perto':6,'DONO PERIGO':3.5,'MEDO':0.8}],
   ['SONO','sig',-0.2,3,{'cansaço':2.6,'luz':-2.3,'FOME':-1.2,'SEDE':-1.5,'MEDO':-2}],
-  ['SOCIAL','sig',-1.8,2,{'isolada':3.2,'luz':-0.5,'MEDO':1.4,'chuva':0.6,'aperto':-3,'D.BEBER':-2.5,'D.COMER':-1.5,'D.DORMIR':-3,'D.DESCANSAR':-2}],
+  ['SOCIAL','sig',-1.8,2,{'isolada':3.2,'luz':-0.5,'MEDO':1.4,'chuva':0.6,'aperto':-3,'doente':-2.5,'borrego':1.2,'FUGIR':1.2,'D.BEBER':-2.5,'D.COMER':-1.5,'D.DORMIR':-3,'D.DESCANSAR':-2,'D.ABRIGO':-1.5}],
   // espaço pessoal: quando há vizinhas demasiado perto, afasta-se (contrabalança o SOCIAL)
-  ['ESPAÇO','sig',-2.2,0.6,{'aperto':5,'MEDO':-1.5,'SONO':-1.2,'PASTAR':-2.5,'BEBE':-3}],
-  ['CURIOSA','sig',-0.4,2.5,{'ruído':1.4,'luz':0.6,'FOME':-1.3,'SEDE':-1.3,'SONO':-2,'MEDO':-1,'D.DESCANSAR':-1.5}],
+  ['ESPAÇO','sig',-2.2,0.6,{'aperto':5,'MEDO':-1.5,'SONO':-1.2,'PASTAR':-2.5,'BEBE':-3,'ABRIGADA':-3,'FUGIR':-3}],
+  ['CURIOSA','sig',-0.4,2.5,{'ruído':1.4,'luz':0.6,'borrego':1.2,'doente':-2,'FOME':-1.3,'SEDE':-1.3,'SONO':-2,'MEDO':-1,'D.DESCANSAR':-1.5}],
+  // aprendizagem: a confiança no dono muda com o que lhe fazes (pegar ↓, festas e comida ↑)
+  ['AFEIÇÃO','sig',-4.2,1.5,{'confiança':5,'CURIOSA':1,'MEDO':-3,'D.BEBER':-2,'D.COMER':-2,'D.DORMIR':-3,'FUGIR':-4}],
   /* --- camada de DECISÃO (seleção de ação) ---
-     Cada D.* é um objetivo. Auto-excitação = compromisso (uma vez decidido, só pára quando a
-     necessidade está satisfeita: começa a beber com ~50% de água e pára perto de 90%).
-     Inibição mútua = só um objetivo ganha; a sede pesa mais do que a fome (é mais urgente). */
-  ['D.BEBER','sig',-2.6,1,{'SEDE':5.5,'D.BEBER':2.2,'D.COMER':-2.5,'D.DORMIR':-2,'D.DESCANSAR':-1.5,'MEDO':-3}],
-  ['D.COMER','sig',-2.6,1,{'FOME':5.0,'D.COMER':2.6,'D.BEBER':-3.5,'D.DORMIR':-2,'D.DESCANSAR':-1.5,'MEDO':-3}],
-  ['D.DORMIR','sig',-3.2,2,{'SONO':5.0,'D.DORMIR':2.0,'D.BEBER':-3,'D.COMER':-3,'MEDO':-4}],
-  ['D.DESCANSAR','sig',1.3,3,{'FOME':-4,'SEDE':-4,'cansaço':2.5,'ruído':-2.2,'luz':0.3,'D.DESCANSAR':2.0,'D.BEBER':-3,'D.COMER':-3,'D.DORMIR':-2,'MEDO':-3,'CURIOSA':-0.6}],
+     Cada D.* é um objetivo. Auto-excitação = compromisso; inibição mútua = só um ganha.
+     A sede pesa mais do que a fome; o frio/calor levam ao abrigo; fugir anula tudo. */
+  ['D.BEBER','sig',-2.6,1,{'SEDE':5.5,'D.BEBER':2.2,'D.COMER':-2.5,'D.DORMIR':-2,'D.DESCANSAR':-1.5,'D.ABRIGO':-1,'MEDO':-3,'FUGIR':-3}],
+  ['D.COMER','sig',-2.6,1,{'FOME':5.0,'D.COMER':2.6,'D.BEBER':-3.5,'D.DORMIR':-2,'D.DESCANSAR':-1.5,'D.ABRIGO':-2,'MEDO':-3,'FUGIR':-3}],
+  ['D.DORMIR','sig',-3.2,2,{'SONO':5.0,'D.DORMIR':2.0,'D.BEBER':-3,'D.COMER':-3,'MEDO':-4,'FUGIR':-4}],
+  ['D.DESCANSAR','sig',1.3,3,{'FOME':-4,'SEDE':-4,'cansaço':2.5,'doente':2.5,'ruído':-2.2,'luz':0.3,'D.DESCANSAR':2.0,'D.BEBER':-3,'D.COMER':-3,'D.DORMIR':-2,'D.ABRIGO':-2,'MEDO':-3,'CURIOSA':-0.6}],
+  ['D.ABRIGO','sig',-3.0,1.5,{'frio':4.5,'calor':4.5,'chuva':1.4,'doente':0.8,'D.ABRIGO':2.2,'D.BEBER':-2.5,'D.COMER':-1.2,'MEDO':-2,'FUGIR':-3}],
   // --- execução: como cumprir o objetivo escolhido ---
-  ['PASTAR','sig',-3.4,0.8,{'relva aqui':3.4,'D.COMER':4.2,'FOME':1.0,'D.BEBER':-3.5,'D.DORMIR':-3,'D.DESCANSAR':-3,'MEDO':-3.5}],
-  ['P.ÁGUA','sig',-2.8,1,{'D.BEBER':5.5,'MEDO':-2}],
-  ['P.FENO','sig',-3.0,1,{'D.COMER':3.8,'há feno':1.6,'relva aqui':-2.4,'relva vista':-2.6,'D.BEBER':-3,'MEDO':-2}],
-  ['P.RELVA','sig',-2.6,1,{'D.COMER':3.8,'relva aqui':-4,'relva vista':2.0,'D.BEBER':-3,'P.FENO':-2}],
+  ['PASTAR','sig',-3.4,0.8,{'relva aqui':3.4,'D.COMER':4.2,'FOME':1.0,'D.BEBER':-3.5,'D.DORMIR':-3,'D.DESCANSAR':-3,'D.ABRIGO':-2.5,'MEDO':-3.5,'FUGIR':-4}],
+  ['P.ÁGUA','sig',-2.8,1,{'D.BEBER':5.5,'MEDO':-2,'FUGIR':-3}],
+  ['P.FENO','sig',-3.0,1,{'D.COMER':3.8,'há feno':1.6,'relva aqui':-2.4,'relva vista':-2.6,'D.BEBER':-3,'MEDO':-2,'FUGIR':-3}],
+  ['P.RELVA','sig',-2.6,1,{'D.COMER':3.8,'relva aqui':-4,'relva vista':2.0,'memória boa':1.0,'D.BEBER':-3,'P.FENO':-2,'FUGIR':-3}],
+  ['P.ABRIGO','sig',-2.6,1,{'D.ABRIGO':5.5,'abrigo perto':-3.5,'FUGIR':-3}],
   ['EVITAR','sig',-1.6,0.3,{'cerca perto':5}],
-  ['VAGUEAR','sig',-0.6,2,{'CURIOSA':2.6,'SOCIAL':-0.8,'aperto':1.2,'D.BEBER':-3,'D.COMER':-2,'D.DORMIR':-3,'D.DESCANSAR':-3}],
+  ['VAGUEAR','sig',-0.6,2,{'CURIOSA':2.6,'SOCIAL':-0.8,'aperto':1.2,'D.BEBER':-3,'D.COMER':-2,'D.DORMIR':-3,'D.DESCANSAR':-3,'D.ABRIGO':-3,'FUGIR':-3,'AFEIÇÃO':-1}],
 ];
 // neurónios de conjunção (multiplicativos): direção × impulso
 const CONJ=[
   ['→FENO','feno ◀▶','P.FENO'],['→ÁGUA','água ◀▶','P.ÁGUA'],['→RELVA','relva ◀▶','P.RELVA'],['→REBANHO','rebanho ◀▶','SOCIAL'],
   ['→CERCA','cerca ◀▶','EVITAR'],['→VAGUEAR','vaguear ◀▶','VAGUEAR'],['COME FENO','feno perto','P.FENO'],['BEBE','água perto','P.ÁGUA'],
   ['ESPREITA','olhar rnd','CURIOSA'],['VIGIA','vizinha ◀▶','SOCIAL'],['→AFASTAR','vizinha ◀▶','ESPAÇO'],
-  ['COME RELVA','relva aqui','PASTAR'],   // só baixa a cabeça para pastar se houver mesmo relva
+  ['COME RELVA','relva aqui','PASTAR'],
+  ['DONO PERIGO','dono perto','DESCONFIA'],['→ABRIGO','abrigo ◀▶','P.ABRIGO'],['ABRIGADA','abrigo perto','D.ABRIGO'],
+  ['←PREDADOR','predador ◀▶','predador perto'],['←CÃO','cão ◀▶','cão perto'],['→DONO','dono ◀▶','AFEIÇÃO'],['←DONO','dono ◀▶','DONO PERIGO'],
+  ['JUNTO DONO','dono perto','AFEIÇÃO'],['→MEMÓRIA','memória ◀▶','P.RELVA'],['→LÍDER','líder ◀▶','SOCIAL'],
 ];
 const MOTOR=[
-  ['VIRAR','tanh',0,0.25,{'→FENO':3,'→ÁGUA':3.4,'→RELVA':2.2,'→REBANHO':1.6,'→CERCA':-4,'→VAGUEAR':1.8,'→AFASTAR':-3}],
-  ['ANDAR','sig',-1.2,0.5,{'P.FENO':2.6,'P.ÁGUA':3.0,'P.RELVA':2.4,'SOCIAL':1.2,'VAGUEAR':1.6,'ESPAÇO':1.6,'MEDO':1.8,'EVITAR':0.8,'COME RELVA':-6,'D.DORMIR':-3.2,'D.DESCANSAR':-2.5,'COME FENO':-5,'BEBE':-5.5}],
-  ['BAIXAR CABEÇA','sig',-1.6,0.4,{'COME RELVA':6,'COME FENO':4.5,'BEBE':5,'MEDO':-3,'D.DORMIR':-1.5}],
-  ['OLHAR H','tanh',0,0.5,{'→FENO':1.4,'→ÁGUA':1.4,'→RELVA':1.0,'VIGIA':1.6,'ESPREITA':2.4}],
-  ['OLHAR V','tanh',0,0.6,{'MEDO':1.2,'CURIOSA':0.4,'SONO':-0.8}],
-  ['DEITAR','sig',-2.4,2,{'D.DORMIR':5,'D.DESCANSAR':4.5,'MEDO':-3}],
-  ['BALIR','sig',-4.2,0.4,{'MEDO':3.6,'isolada':1.6,'SEDE':1.3,'FOME':0.9}],
-  ['CAUDA','tanh',0,0.3,{'CURIOSA':1,'MEDO':1.5,'PASTAR':0.6}],
+  ['VIRAR','tanh',0,0.25,{'→FENO':3,'→ÁGUA':3.4,'→RELVA':2.2,'→REBANHO':1.0,'→LÍDER':1.3,'→CERCA':-4,'→VAGUEAR':1.8,'→AFASTAR':-3,'→ABRIGO':3.2,'←PREDADOR':-5,'←CÃO':-3.8,'→DONO':1.8,'←DONO':-2.5,'→MEMÓRIA':1.2}],
+  ['ANDAR','sig',-1.2,0.5,{'P.FENO':2.6,'P.ÁGUA':3.0,'P.RELVA':2.4,'P.ABRIGO':2.6,'SOCIAL':1.2,'VAGUEAR':1.6,'ESPAÇO':1.6,'MEDO':1.8,'FUGIR':3.5,'AFEIÇÃO':0.8,'EVITAR':0.8,'COME RELVA':-6,'D.DORMIR':-3.2,'D.DESCANSAR':-2.5,'COME FENO':-5,'BEBE':-5.5,'ABRIGADA':-4.5,'JUNTO DONO':-3,'doente':-0.8}],
+  ['BAIXAR CABEÇA','sig',-1.6,0.4,{'COME RELVA':6,'COME FENO':4.5,'BEBE':5,'MEDO':-3,'FUGIR':-4,'D.DORMIR':-1.5}],
+  ['OLHAR H','tanh',0,0.5,{'→FENO':1.4,'→ÁGUA':1.4,'→RELVA':1.0,'VIGIA':1.6,'ESPREITA':2.4,'→DONO':1.5,'←PREDADOR':2}],
+  ['OLHAR V','tanh',0,0.6,{'MEDO':1.2,'CURIOSA':0.4,'SONO':-0.8,'AFEIÇÃO':0.6}],
+  ['DEITAR','sig',-2.4,2,{'D.DORMIR':5,'D.DESCANSAR':4.5,'ABRIGADA':2.5,'MEDO':-3,'FUGIR':-5}],
+  ['BALIR','sig',-4.2,0.4,{'MEDO':3.6,'FUGIR':1.5,'isolada':1.6,'SEDE':1.3,'FOME':0.9,'borrego':0.8}],
+  ['CAUDA','tanh',0,0.3,{'CURIOSA':1,'MEDO':1.5,'PASTAR':0.6,'AFEIÇÃO':1}],
+  ['ORELHAS','tanh',0,0.3,{'MEDO':2.2,'FUGIR':1.2,'CURIOSA':-0.8,'AFEIÇÃO':-0.8}],
+  ['SALTAR','sig',-4.5,0.5,{'borrego':3,'CURIOSA':2.2,'luz':0.6,'MEDO':-4,'FOME':-2,'doente':-3,'D.DORMIR':-3,'D.DESCANSAR':-2}],
 ];
-const DECISIONS=[['D.BEBER','beber'],['D.COMER','comer'],['D.DORMIR','dormir'],['D.DESCANSAR','descansar']];
+const DECISIONS=[['D.BEBER','beber'],['D.COMER','comer'],['D.DORMIR','dormir'],['D.DESCANSAR','descansar'],['D.ABRIGO','abrigo']];
 const NRES=180;
 const TOPO=(()=>{
   const nodes=[],edges=[],idx={};
   const add=(name,kind,fn,bias=0,tau=1)=>{idx[name]=nodes.length;nodes.push({name,kind,fn,bias,tau,inE:[]});};
   const id=v=>typeof v==='number'?v:idx[v];
-  const link=(s,d,w,x={})=>{const e={s:id(s),d:id(d),w,...x};edges.push(e);nodes[e.d].inE.push(edges.length-1);};
+  const link=(s,d,w,x={})=>{const e={s:id(s),d:id(d),w,...x};if(e.s==null||e.d==null)throw new Error('sinapse inválida '+s+'→'+d);edges.push(e);nodes[e.d].inE.push(edges.length-1);};
   SENS.forEach(n=>add(n,'s','in'));
   for(const [n,fn,b,t] of INTER) add(n,'i',fn,b,t);
   const r=rng(1234),r0=nodes.length;
@@ -494,15 +621,38 @@ const TOPO=(()=>{
   return {nodes,edges,idx,order,NS:SENS.length};
 })();
 const NI=TOPO.idx;
+
+/* ---------- Genética: o "genoma" é o conjunto de pesos sinápticos + traços ---------- */
+function makeGenome(seed,o={}){
+  const r=rng(seed);
+  const w=TOPO.edges.map(e=>e.mul?1:+(e.w*(0.85+r()*0.3)).toFixed(3));
+  const b=TOPO.nodes.map(n=>n.kind==='s'?0:+(n.bias+(r()-0.5)*0.3).toFixed(3));
+  // personalidade: umas mais independentes/curiosas, outras mais "agarradas" ao rebanho
+  b[NI['SOCIAL']]=+(b[NI['SOCIAL']]+(r()-0.5)*1.6).toFixed(3);b[NI['CURIOSA']]=+(b[NI['CURIOSA']]+(r()-0.5)*1.2).toFixed(3);b[NI['ESPAÇO']]=+(b[NI['ESPAÇO']]+(r()-0.5)*1.0).toFixed(3);
+  return {w,b,dom:o.dom??+r().toFixed(3),col:o.col||[r()<0.12?'d':'B',r()<0.12?'d':'B'],sex:o.sex||'f'};
+}
+// cria o genoma de um borrego: cada sinapse vem do pai ou da mãe, com pequenas mutações
+function inheritGenome(m,f){
+  const pick=()=>Math.random()<0.5;
+  const w=m.w.map((v,i)=>{if(TOPO.edges[i].mul)return 1;const base=pick()?v:f.w[i];return +(base+gauss()*0.03*(Math.abs(base)+0.2)).toFixed(3);});
+  const b=m.b.map((v,i)=>TOPO.nodes[i].kind==='s'?0:+((pick()?v:f.b[i])+gauss()*0.04).toFixed(3));
+  return {w,b,dom:+clamp((m.dom+f.dom)/2+gauss()*0.12,0,1).toFixed(3),col:[m.col[(Math.random()*2)|0],f.col[(Math.random()*2)|0]],sex:Math.random()<0.5?'f':'m'};
+}
+function personality(g){
+  const d=(n)=>g.b[NI[n]]-TOPO.nodes[NI[n]].bias;
+  const t=[];const so=d('SOCIAL'),cu=d('CURIOSA');
+  t.push(so>0.35?'sociável':so<-0.35?'independente':'equilibrada');
+  if(cu>0.3)t.push('curiosa');else if(cu<-0.3)t.push('calma');
+  if(g.dom>0.7)t.push('dominante');else if(g.dom<0.3)t.push('tímida');
+  return t.join(', ');
+}
+
 class Brain{
-  constructor(seed){
-    const r=rng(seed);
+  constructor(genome){
     this.a=new Float32Array(TOPO.nodes.length);
     this.flow=new Float32Array(TOPO.edges.length);
-    this.w=Float32Array.from(TOPO.edges,e=>e.mul?1:e.w*(0.85+r()*0.3));
-    this.b=Float32Array.from(TOPO.nodes,n=>n.kind==='s'?0:n.bias+(r()-0.5)*0.3);
-    // personalidade: umas mais independentes/curiosas, outras mais "agarradas" ao rebanho
-    this.b[NI['SOCIAL']]+=(r()-0.5)*1.6;this.b[NI['CURIOSA']]+=(r()-0.5)*1.2;this.b[NI['ESPAÇO']]+=(r()-0.5)*1.0;
+    this.w=Float32Array.from(genome.w);
+    this.b=Float32Array.from(genome.b);
   }
   step(inp,dt){
     const a=this.a,N=TOPO.nodes,E=TOPO.edges;
@@ -517,34 +667,41 @@ class Brain{
 }
 
 /* ============================================================
-   Ovelhas
+   Ovelhas — corpo
    ============================================================ */
-const NAMES=['Branquinha','Nuvem','Algodão','Dolly','Pipoca','Marshmallow','Bolinha','Floquinho','Merina','Carvão'];
-const WOOL=[0xf5f1e6,0xf8f4ea,0xf1eadb,0xf6efe3,0xece5d6,0xfaf6ee,0xf3ede0,0xefe7d8,0xf6f0e2,0x3b3432];
+const NAMES=['Branquinha','Nuvem','Algodão','Dolly','Pipoca','Marshmallow','Bolinha','Floquinho','Carvão','Trovão'];
+const LAMB_NAMES_F=['Pompom','Nina','Fofinha','Mimosa','Estrela','Neve','Pérola','Canela','Penugem','Flocos','Lírio','Pituca','Jujuba','Bolacha','Luna','Tulipa','Migalha','Amora'];
+const LAMB_NAMES_M=['Tufo','Caracol','Biscoito','Tremoço','Bravo','Faísca','Rocha','Sansão','Pirata','Trovão Jr','Fumo','Chico'];
+const WOOLS=[0xf5f1e6,0xf8f4ea,0xf1eadb,0xf6efe3,0xece5d6,0xfaf6ee,0xf3ede0,0xefe7d8,0xf6f0e2];
 const puffGeo=new THREE.IcosahedronGeometry(0.42,1);
-const faceMat=toon(0x3b302b),eyeMat=toon(0xffffff),pupilMat=new THREE.MeshBasicMaterial({color:0x111111}),hoofMat=toon(0x2a221e);
+const faceMat=toon(0x3b302b),eyeMat=toon(0xffffff),pupilMat=new THREE.MeshBasicMaterial({color:0x111111}),hoofMat=toon(0x2a221e),hornMat=toon(0xcbb48a);
 const legGeo=new THREE.CylinderGeometry(0.075,0.065,0.62,6);legGeo.translate(0,-0.31,0);
 const PUFFS=[[0,0,0,1.25,0.85,1.35],[0.28,0.14,0.36,0.85],[-0.28,0.14,0.36,0.85],[0.3,0.12,-0.36,0.85],[-0.3,0.12,-0.36,0.85],[0,0.33,0.05,0.9],[0,0.25,0.46,0.75],[0,0.22,-0.5,0.82],[0.4,-0.08,0,0.8],[-0.4,-0.08,0,0.8],[0,-0.1,0.6,0.62]];
-function buildSheepMesh(wool,dark){
+function buildSheepMesh(wool,dark,ram){
   const woolMat=toon(wool);
   const root=new THREE.Group(),body=new THREE.Group();body.position.y=0.92;root.add(body);
-  for(const [x,y,z,s,sy,sz] of PUFFS){const m=new THREE.Mesh(puffGeo,woolMat);m.position.set(x,y,z);m.scale.set(s,sy?s*sy:s,sz?s*sz:s);body.add(m);}
+  const woolGroup=new THREE.Group();body.add(woolGroup);
+  for(const [x,y,z,s,sy,sz] of PUFFS){const m=new THREE.Mesh(puffGeo,woolMat);m.position.set(x,y,z);m.scale.set(s,sy?s*sy:s,sz?s*sz:s);woolGroup.add(m);}
+  const skin=new THREE.Mesh(new THREE.SphereGeometry(0.5,12,10),toon(dark?0x2b2422:0xe6d6c0));skin.scale.set(0.78,0.72,1.25);body.add(skin);
   const fm=dark?toon(0x1c1716):faceMat;
   const headPivot=new THREE.Group();headPivot.position.set(0,0.22,0.62);body.add(headPivot);
   const head=new THREE.Mesh(new THREE.SphereGeometry(0.25,14,10),fm);head.scale.set(0.9,1,1.35);head.position.set(0,0.04,0.27);headPivot.add(head);
   const tuft=new THREE.Mesh(puffGeo,woolMat);tuft.scale.setScalar(0.42);tuft.position.set(0,0.27,0.16);headPivot.add(tuft);
+  const ears=[];
   for(const s of [-1,1]){
-    const ear=new THREE.Mesh(new THREE.SphereGeometry(0.1,8,6),fm);ear.scale.set(1.9,0.45,0.9);ear.position.set(s*0.27,0.12,0.16);ear.rotation.z=s*-0.45;headPivot.add(ear);
+    const ear=new THREE.Mesh(new THREE.SphereGeometry(0.1,8,6),fm);ear.scale.set(1.9,0.45,0.9);ear.position.set(s*0.27,0.12,0.16);ear.rotation.z=s*-0.45;headPivot.add(ear);ears.push(ear);
     const eye=new THREE.Mesh(new THREE.SphereGeometry(0.062,8,6),eyeMat);eye.position.set(s*0.15,0.13,0.44);headPivot.add(eye);
     const pu=new THREE.Mesh(new THREE.SphereGeometry(0.036,6,5),pupilMat);pu.position.set(s*0.165,0.135,0.495);headPivot.add(pu);
   }
+  let horns=null;
+  if(ram){horns=new THREE.Group();for(const s of [-1,1]){const h=new THREE.Mesh(new THREE.TorusGeometry(0.14,0.05,6,14,Math.PI*1.6),hornMat);h.position.set(s*0.2,0.2,0.12);h.rotation.set(0,s*Math.PI/2,0.4);horns.add(h);}headPivot.add(horns);}
   const legs=[];
   for(const [x,z] of [[0.22,0.34],[-0.22,0.34],[0.22,-0.34],[-0.22,-0.34]]){
     const lp=new THREE.Group();lp.position.set(x,-0.22,z);body.add(lp);
     const leg=new THREE.Mesh(legGeo,fm);lp.add(leg);const hoof=new THREE.Mesh(new THREE.CylinderGeometry(0.075,0.08,0.08,6),hoofMat);hoof.position.y=-0.64;lp.add(hoof);legs.push(lp);}
   const tail=new THREE.Mesh(puffGeo,woolMat);tail.scale.setScalar(0.32);tail.position.set(0,0.15,-0.78);body.add(tail);
   root.traverse(o=>{if(o.isMesh){o.castShadow=true;}});
-  return {root,body,headPivot,legs,tail,woolMat,baseWool:new THREE.Color(wool)};
+  return {root,body,woolGroup,headPivot,legs,tail,woolMat,baseWool:new THREE.Color(wool),ears,horns};
 }
 function makeBubble(){const cv=document.createElement('canvas');cv.width=256;cv.height=128;const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;
   const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false,fog:false}));sp.scale.set(1.7,0.85,1);sp.visible=false;sp.renderOrder=5;sp.userData={cv,tex,text:''};scene.add(sp);return sp;}
@@ -557,60 +714,113 @@ function setBubble(sp,text){if(sp.userData.text===text)return;sp.userData.text=t
 const pickables=[];
 const env={lat:38.72,lon:-9.14,place:null,locOk:false,light:1,rain:0,snow:0,fog:0,cloud:0,storm:0,temp:null,wxDesc:'',override:'auto',wx:null};
 let sheep=[],selected=null,held=null;
+const cursorG={x:0,z:0,t:0};
+const MEMN=8,MEMC=(2*R)/MEMN;
+const DISEASES={
+  tosse:{name:'tosse',icon:'🤧',dmg:1.6,contagio:1,txt:'tosse (respiratória, contagiosa)'},
+  coxeira:{name:'coxeira',icon:'🦶',dmg:0.7,contagio:0,txt:'coxeira (infeção no casco)'},
+  parasitas:{name:'parasitas',icon:'🪱',dmg:1.0,contagio:0.4,txt:'parasitas (digere mal)'},
+};
+const CAUSES={fome:'fome',sede:'sede',frio:'frio',calor:'calor',doença:'doença',velhice:'velhice'};
 
+/* ============================================================
+   Ovelha — comportamento
+   ============================================================ */
 class Sheep{
-  constructor(i,d){
-    this.id=i;this.name=d.name;this.seed=d.seed;
+  constructor(d){
+    Object.assign(this,{uid:d.uid,name:d.name,genome:d.genome,sex:d.sex||d.genome.sex||'f',food:d.food,water:d.water,rumen:d.rumen??50,health:d.health,fatigue:d.fatigue,alive:d.alive,
+      ageDays:d.ageDays??60,wool:d.wool??60,sick:d.sick??null,sickH:d.sickH??0,pregnantH:d.pregnantH??null,fatherGenome:d.fatherGenome??null,fatherName:d.fatherName??null,
+      breedCd:d.breedCd??0,trust:d.trust??0,motherUid:d.motherUid??null,gen:d.gen??1,wet:d.wet??0,deadH:d.deadH??0,cause:d.cause??'',outside:!!d.outside});
     this.pos=new THREE.Vector3(d.x,0,d.z);this.heading=d.h;
-    this.food=d.food;this.water=d.water;this.health=d.health;this.fatigue=d.fatigue;this.alive=d.alive;
-    this.brain=new Brain(this.seed);this.inp=new Float32Array(TOPO.NS);
-    const m=buildSheepMesh(WOOL[i%WOOL.length],i===9);Object.assign(this,m);scene.add(this.root);
+    this.memory=Float32Array.from(d.memory||new Array(MEMN*MEMN).fill(0.5));
+    this.dark=this.genome.col[0]==='d'&&this.genome.col[1]==='d';
+    this.brain=new Brain(this.genome);this.inp=new Float32Array(TOPO.NS);
+    const m=buildSheepMesh(this.dark?0x3b3432:WOOLS[this.uid%WOOLS.length],this.dark,this.sex==='m');Object.assign(this,m);scene.add(this.root);
     this.root.traverse(o=>{if(o.isMesh){o.userData.sheep=this;pickables.push(o);}});
     this.bubble=makeBubble();this.bubbleT=0;
     this.speed=0;this.phase=Math.random()*10;this.lying=false;this.headDown=false;this.act='';
     this.n1=gauss();this.n2=0;this.n3=0;this.thinkAcc=Math.random()*0.1;this.afterFear=0;
-    this.falling=false;this.vy=0;this.y=H(this.pos.x,this.pos.z);this.bleatCd=5+Math.random()*10;this.deadT=0;
-    this.headYaw=0;this.headPitch=0;
+    this.falling=false;this.vy=0;this.y=H(this.pos.x,this.pos.z);this.bleatCd=5+Math.random()*10;
+    this.hopY=0;this.hopV=0;this.headYaw=0;this.headPitch=0;this.cold=0;this.hot=0;this.feel=15;this.sheltered=0;this.hayD=9;this.waterD=9;
+    this.pitch=380+(this.uid*37)%90;
     if(!this.alive)this.setDeadLook();
   }
-  serialize(){return{name:this.name,seed:this.seed,x:+this.pos.x.toFixed(2),z:+this.pos.z.toFixed(2),h:+this.heading.toFixed(2),food:this.food,water:this.water,health:this.health,fatigue:this.fatigue,alive:this.alive};}
+  get lamb(){return this.ageDays<CFG.adultDays;}
+  get old(){return this.ageDays>CFG.oldDays;}
+  get growth(){return clamp(this.ageDays/CFG.adultDays,0,1);}
+  get spdMul(){return (this.lamb?0.85:1)*(this.old?0.75:1)*(this.sick==='coxeira'?0.45:this.sick?0.8:1);}
+  serialize(){const r3=v=>Math.round(v*1000)/1000,g=this.genome;
+    const gs=gg=>gg?{w:gg.w.map(r3),b:gg.b.map(r3),dom:gg.dom,col:gg.col,sex:gg.sex}:null;
+    return{uid:this.uid,name:this.name,genome:gs(g),sex:this.sex,x:+this.pos.x.toFixed(2),z:+this.pos.z.toFixed(2),h:+this.heading.toFixed(2),
+      food:this.food,water:this.water,rumen:this.rumen,health:this.health,fatigue:this.fatigue,alive:this.alive,ageDays:this.ageDays,wool:this.wool,sick:this.sick,sickH:this.sickH,
+      pregnantH:this.pregnantH,fatherGenome:gs(this.fatherGenome),fatherName:this.fatherName,breedCd:this.breedCd,trust:this.trust,motherUid:this.motherUid,gen:this.gen,wet:this.wet,
+      deadH:this.deadH,cause:this.cause,outside:this.outside,memory:Array.from(this.memory,v=>Math.round(v*100)/100)};}
+  memUpdate(x,z,g){const i=clamp(Math.floor((x+R)/MEMC),0,MEMN-1),j=clamp(Math.floor((z+R)/MEMC),0,MEMN-1),k=j*MEMN+i;this.memory[k]=this.memory[k]*0.75+g*0.25;}
   sense(dt){
     const I=this.inp,p=this.pos,h=this.heading,fx=Math.sin(h),fz=Math.cos(h);
     const dirTo=(tx,tz)=>{const rel=wrapA(Math.atan2(tx-p.x,tz-p.z)-h);const s=Math.sin(rel);return Math.cos(rel)>0?s:(s>=0?1:-1);};
+    // ameaças: forte quando está à frente (tem de desviar), zero quando já está atrás (basta continuar a fugir)
+    const threatDir=(tx,tz)=>{const rel=wrapA(Math.atan2(tx-p.x,tz-p.z)-h);return (Math.sin(rel)>=0?1:-1)*(1+Math.cos(rel))/2;};
     I[0]=1-this.food/100;I[1]=1-this.water/100;I[2]=this.fatigue/100;
-    I[3]=grassAt(p.x+fx*0.8,p.z+fz*0.8);
-    // "perto" = focinho a alcançar o comedouro (a ovelha pára a ~0.55–0.9 da borda)
+    I[3]=grassAt(p.x+fx*0.8,p.z+fz*0.8);this.memUpdate(p.x,p.z,I[3]);
     const hq=boxNear(HAY,p.x,p.z);I[4]=dirTo(hq.x,hq.z);I[5]=clamp(1-(hq.d-0.75)/0.5,0,1);I[6]=HAY.level>1?1:0;
     const wq=boxNear(WATER,p.x,p.z);I[7]=dirTo(wq.x,wq.z);I[8]=clamp(1-(wq.d-0.75)/0.5,0,1);I[9]=WATER.level>1?1:0;
     this.hayD=hq.d;this.waterD=wq.d;
-    // visão: procura relva num cone à frente
+    // visão: procura relva num cone à frente (e guarda o que viu na memória espacial)
     let best=0,bestRel=0;
     for(const rel of [-1.3,-0.7,-0.3,0,0.3,0.7,1.3])for(const d of [2.5,5,8]){const a=h+rel,x=p.x+Math.sin(a)*d,z=p.z+Math.cos(a)*d;
-      if(x*x+z*z>(R-1)*(R-1))continue;const s=grassAt(x,z)*(1-0.07*Math.abs(rel))*(1-d*0.015);if(s>best){best=s;bestRel=rel;}}
+      if(x*x+z*z>(R-1)*(R-1))continue;const g=grassAt(x,z);this.memUpdate(x,z,g);const s=g*(1-0.07*Math.abs(rel))*(1-d*0.015);if(s>best){best=s;bestRel=rel;}}
     I[10]=Math.sin(bestRel)*(best>0?1:0);I[11]=best;
     // rebanho
     let cx=0,cz=0,n=0,nd=1e9,nx=0,nz=0,close=0;
     for(const o of sheep){if(o===this||!o.alive||o===held)continue;const dx=o.pos.x-p.x,dz=o.pos.z-p.z,d=Math.hypot(dx,dz);
       if(d<20){cx+=o.pos.x;cz+=o.pos.z;n++;}if(d<nd){nd=d;nx=o.pos.x;nz=o.pos.z;}if(d<3)close++;}
-    // isolada só a partir de ~7 m do centro do rebanho (antes era 3 m → coladas umas às outras)
     if(n){cx/=n;cz/=n;I[12]=dirTo(cx,cz);I[13]=clamp((Math.hypot(cx-p.x,cz-p.z)-7)/10,0,1);}else{I[12]=0;I[13]=sheep.some(o=>o!==this&&o.alive)?1:0;}
-    I[23]=nd<1e9&&nd<12?dirTo(nx,nz):0;
+    I[23]=nd<12?dirTo(nx,nz):0;
     I[24]=nd<1e9?clamp(Math.max(close/3,1-(nd-1.2)/1.8),0,1):0;
-    const r=Math.hypot(p.x,p.z);I[14]=r>0.1?dirTo(p.x/r*R,p.z/r*R):0;I[15]=clamp((r-(R-4.5))/3.5,0,1);
-    I[16]=env.light;I[17]=Math.max(env.rain,env.snow*0.7,env.storm);
-    I[18]=this===held?1:this.afterFear;I[19]=clamp(1-this.health/60,0,1);
+    // cerca (um troço partido não é sentido como barreira)
+    const r=Math.hypot(p.x,p.z),ang=Math.atan2(p.z,p.x);
+    if(this.outside||fenceBroken(ang)){I[14]=0;I[15]=0;}else{I[14]=r>0.1?dirTo(p.x/r*R,p.z/r*R):0;I[15]=clamp((r-(R-4.5))/3.5,0,1);}
+    // abrigo, frio e calor
+    const inS=inShed(p.x,p.z),dTree=Math.hypot(p.x-innerTree.x,p.z-innerTree.z),inTree=dTree<2.8&&state.season!==3;
+    this.sheltered=inS?1:inTree?0.5:0;
+    thermal(this,this.sheltered);
+    I[16]=env.light;I[17]=Math.max(env.rain,env.snow*0.7,env.storm)*(1-this.sheltered);
+    I[18]=this===held?1:this.afterFear;I[19]=clamp(1-this.health/60,0,1)+(this.sick?0.3:0);
     this.n1+=(-this.n1*0.2)*dt+gauss()*Math.sqrt(dt)*0.5;this.n2+=(-this.n2*0.8)*dt+gauss()*Math.sqrt(dt)*1.2;this.n3+=(-this.n3*0.3)*dt+gauss()*Math.sqrt(dt)*0.6;
     I[20]=0.5+0.5*Math.tanh(this.n1);I[21]=Math.tanh(this.n2);I[22]=Math.tanh(this.n3);
+    I[SI['frio']]=this.cold;I[SI['calor']]=this.hot;
+    let tx=SHED.x,tz=SHED.z;
+    if(this.hot>this.cold&&state.season!==3){const dS=Math.hypot(p.x-SHED.x,p.z-SHED.z);if(dTree<dS){tx=innerTree.x+1.4;tz=innerTree.z+0.9;}}
+    I[SI['abrigo ◀▶']]=dirTo(tx,tz);I[SI['abrigo perto']]=inS?1:inTree?(this.hot>this.cold?0.9:0.3):0;
+    I[SI['doente']]=this.sick?1:0;
+    // predador, cão e dono (cursor do rato)
+    if(fox.active){const d=dist2(fox.pos,p);I[SI['predador ◀▶']]=threatDir(fox.pos.x,fox.pos.z);I[SI['predador perto']]=clamp(1-(d-2)/12,0,1);}
+    else{I[SI['predador ◀▶']]=0;I[SI['predador perto']]=0;}
+    {const d=dist2(dog.pos,p);I[SI['cão ◀▶']]=threatDir(dog.pos.x,dog.pos.z);I[SI['cão perto']]=clamp(1-(d-1.5)/(state.herd?8:dog.running?5:2.2),0,1);}
+    if(cursorG.t&&performance.now()-cursorG.t<1500){const d=Math.hypot(cursorG.x-p.x,cursorG.z-p.z);I[SI['dono ◀▶']]=dirTo(cursorG.x,cursorG.z);I[SI['dono perto']]=clamp(1-(d-1)/7,0,1);}
+    else{I[SI['dono ◀▶']]=0;I[SI['dono perto']]=0;}
+    I[SI['confiança']]=(this.trust+1)/2;
+    // memória espacial: melhor sítio de relva que se lembra (longe de onde está)
+    let bm=0,bx=0,bz=0;
+    for(let k=0;k<MEMN*MEMN;k++){const mx=-R+((k%MEMN)+0.5)*MEMC,mz=-R+(((k/MEMN)|0)+0.5)*MEMC;if(mx*mx+mz*mz>(R-2)*(R-2))continue;
+      const d=Math.hypot(mx-p.x,mz-p.z);if(d<4)continue;const sc=this.memory[k]-d*0.012;if(sc>bm){bm=sc;bx=mx;bz=mz;}}
+    I[SI['memória ◀▶']]=bm>0?dirTo(bx,bz):0;I[SI['memória boa']]=clamp(bm,0,1);this.memTarget=bm>0?{x:bx,z:bz}:null;
+    // líder (ou a mãe, para os borregos)
+    let L=null;if(this.lamb)L=sheep.find(o=>o.uid===this.motherUid&&o.alive);
+    if(!L)L=sheep.find(o=>o.uid===state.leaderUid&&o.alive&&o!==this);
+    if(L){const d=dist2(L.pos,p);I[SI['líder ◀▶']]=dirTo(L.pos.x,L.pos.z)*clamp((d-2)/5,0,1);}else I[SI['líder ◀▶']]=0;
+    I[SI['rúmen']]=this.rumen/100;I[SI['borrego']]=this.lamb?1:0;
   }
   update(dt,simH){
-    if(!this.alive){this.deadT+=dt;this.root.position.set(this.pos.x,H(this.pos.x,this.pos.z),this.pos.z);this.placeBubble();return;}
+    if(!this.alive){this.root.position.set(this.pos.x,H(this.pos.x,this.pos.z),this.pos.z);this.placeBubble();return;}
     this.thinkAcc+=dt;
     while(this.thinkAcc>=0.1){this.thinkAcc-=0.1;this.sense(0.1);this.brain.step(this.inp,0.1);}
     const B=this.brain,p=this.pos;
     this.afterFear=Math.max(0,this.afterFear-dt*0.25);
-    const turn=B.get('VIRAR'),walk=B.get('ANDAR'),head=B.get('BAIXAR CABEÇA'),lie=B.get('DEITAR'),fear=B.get('MEDO');
-    if(this.lying){if(lie<0.4||fear>0.5)this.lying=false;}else if(lie>0.58&&!this.falling)this.lying=true;
-    if(this.headDown){if(head<0.42)this.headDown=false;}else if(head>0.55)this.headDown=true;
+    const turn=B.get('VIRAR'),walk=B.get('ANDAR'),head=B.get('BAIXAR CABEÇA'),lie=B.get('DEITAR'),fear=B.get('MEDO'),flee=B.get('FUGIR');
+    if(this.lying){if(lie<0.4||fear>0.5||flee>0.45)this.lying=false;}else if(lie>0.58&&!this.falling)this.lying=true;
+    if(this.headDown){if(head<0.42||flee>0.45)this.headDown=false;}else if(head>0.55)this.headDown=true;
     const gy=H(p.x,p.z);
     if(this===held){
       this.lying=false;this.headDown=false;this.speed=0;
@@ -620,23 +830,31 @@ class Sheep{
       if(this.y<=gy){this.y=gy;this.falling=false;this.afterFear=1;if(this.vy<-4)this.bleat(1.2);this.vy=0;}
     }else{
       const busy=this.lying||this.headDown;
-      const target=busy?0:walk*1.6*(1+fear*0.9);
+      const target=busy?0:walk*1.6*(1+fear*0.6+flee*0.5)*this.spdMul;
       this.speed=lerp(this.speed,target,Math.min(1,dt*3));
       this.heading=wrapA(this.heading+turn*2.3*dt*(busy?0.15:1));
       p.x+=Math.sin(this.heading)*this.speed*dt;p.z+=Math.cos(this.heading)*this.speed*dt;
       this.y=H(p.x,p.z);
+      // borregos felizes dão saltinhos
+      if(!busy&&this.hopY===0&&this.hopV===0&&B.get('SALTAR')>0.55&&Math.random()<dt*1.2)this.hopV=3+Math.random()*1.2;
     }
-    // colisões: outras ovelhas, comedouros, árvore, cerca
+    if(this.hopV!==0||this.hopY>0){this.hopV-=20*dt;this.hopY+=this.hopV*dt;if(this.hopY<=0){this.hopY=0;this.hopV=0;}}
+    // colisões: outras ovelhas (as dominantes empurram mais), comedouros, abrigo, árvore, cão, cerca
     if(this!==held){
-      for(const o of sheep){if(o===this||o===held)continue;const dx=p.x-o.pos.x,dz=p.z-o.pos.z,d=Math.hypot(dx,dz);if(d>0.001&&d<1.3){const k=(1.3-d)*0.5;p.x+=dx/d*k;p.z+=dz/d*k;}}
-      pushOutBox(HAY,p,0.55);pushOutBox(WATER,p,0.55);
+      const myDom=this.genome.dom+0.05;
+      for(const o of sheep){if(o===this||o===held)continue;const dx=p.x-o.pos.x,dz=p.z-o.pos.z,d=Math.hypot(dx,dz),md=1.3*(this.lamb?0.8:1);
+        if(d>0.001&&d<md){const share=(o.genome.dom+0.05)/(myDom+o.genome.dom+0.1);const k=(md-d)*share;p.x+=dx/d*k;p.z+=dz/d*k;}}
+      pushOutBox(HAY,p,0.55);pushOutBox(WATER,p,0.55);pushOutBox(SHED_WALL,p,0.45);
       {const dx=p.x-innerTree.x,dz=p.z-innerTree.z,d=Math.hypot(dx,dz);if(d<innerTree.r+0.5){p.x=innerTree.x+dx/d*(innerTree.r+0.5);p.z=innerTree.z+dz/d*(innerTree.r+0.5);}}
-      const r=Math.hypot(p.x,p.z),max=R-0.9;if(r>max){p.x*=max/r;p.z*=max/r;}
+      {const dx=p.x-dog.pos.x,dz=p.z-dog.pos.z,d=Math.hypot(dx,dz);if(d>0.001&&d<1){p.x+=dx/d*(1-d);p.z+=dz/d*(1-d);}}
+      this.fenceClamp();
       if(!this.falling)this.y=H(p.x,p.z);
     }
     this.needs(simH);
     this.animate(dt,turn);
-    // balir
+    // sintomas
+    if(this.sick==='tosse'&&Math.random()<dt*0.08){setBubble(this.bubble,'cof cof');this.bubbleT=1.2;playCough(this.pos);}
+    if(this.sick==='parasitas'&&Math.random()<dt*0.03){setBubble(this.bubble,'😣');this.bubbleT=1.2;}
     this.bleatCd-=dt;
     if(B.get('BALIR')>0.55&&this.bleatCd<=0&&Math.random()<dt*1.5){this.bleat();}
     if(this.bubbleT>0){this.bubbleT-=dt;if(this.bubbleT<=0)setBubble(this.bubble,'');}
@@ -644,80 +862,285 @@ class Sheep{
     else setBubble(this.bubble,'');
     this.placeBubble();
   }
+  fenceClamp(){
+    const p=this.pos,r=Math.hypot(p.x,p.z),a=Math.atan2(p.z,p.x),br=fenceBroken(a);
+    if(this.outside){
+      if(r<R-1)this.outside=false;                                   // voltou a entrar pelo buraco
+      else if(r<R+0.9&&!br){p.x*=(R+0.9)/r;p.z*=(R+0.9)/r;}           // do lado de fora a cerca também trava
+      if(r>44){p.x*=44/r;p.z*=44/r;}
+    }else{
+      if(r>R-0.9){
+        if(br){if(r>R+1){this.outside=true;alertEv('fuga-'+this.uid,'🏃',`${this.name} fugiu do cercado por um buraco na cerca!`,{cooldownH:2});}}
+        else{p.x*=(R-0.9)/r;p.z*=(R-0.9)/r;}
+      }
+    }
+  }
   needs(simH){
     if(simH<=0)return;
-    const heat=env.temp!=null&&env.temp>25?CFG.heatThirst:1,meta=this.lying?CFG.sleepMeta:1;
-    this.food=Math.max(0,this.food-CFG.hungerPerH*meta*simH);
-    this.water=Math.max(0,this.water-CFG.thirstPerH*heat*meta*simH);
-    if(this.lying)this.fatigue=Math.max(0,this.fatigue-CFG.restPerH*simH);
-    else this.fatigue=Math.min(100,this.fatigue+(CFG.fatiguePerH+CFG.walkFatiguePerH*clamp(this.speed/1.6,0,1))*simH);
     this.act='';
     if(this.headDown&&!this.lying&&this!==held&&!this.falling){
       if(this.waterD<1.15&&WATER.level>0&&this.water<99.5&&(this.water<=this.food||this.hayD>1.15)){
         const a=Math.min(CFG.drinkGainPerH*simH,100-this.water,WATER.level/CFG.waterUse);this.water+=a;WATER.level-=a*CFG.waterUse;this.act='bebe';}
-      else if(this.hayD<1.15&&HAY.level>0&&this.food<99.5){
-        const a=Math.min(CFG.hayGainPerH*simH,100-this.food,HAY.level/CFG.hayUse);this.food+=a;HAY.level-=a*CFG.hayUse;this.act='feno';}
+      else if(this.hayD<1.15&&HAY.level>0&&this.rumen<99){
+        const a=Math.min(CFG.hayGainPerH*simH,100-this.rumen,HAY.level/CFG.hayUse);this.rumen+=a;HAY.level-=a*CFG.hayUse;this.act='feno';}
       else{const k=cellIdx(this.pos.x+Math.sin(this.heading)*0.8,this.pos.z+Math.cos(this.heading)*0.8);
-        if(k>=0&&grass[k]>0.02&&this.food<99.5){const e=Math.min(CFG.grassEatPerH*simH,grass[k],(100-this.food)/CFG.grassFood);grass[k]-=e;this.food+=e*CFG.grassFood;this.act='pasta';}}
+        if(k>=0&&grass[k]>0.02&&this.rumen<99){const per=CFG.grassFood*GT_MULT[gtype[k]];const e=Math.min(CFG.grassEatPerH*simH,grass[k],(100-this.rumen)/per);grass[k]-=e;this.rumen+=e*per;this.act='pasta';}}
     }
-    if(this.food<=0||this.water<=0)this.health-=CFG.dmgPerH*simH*((this.food<=0&&this.water<=0)?1.6:1);
-    else if(this.food>25&&this.water>25)this.health=Math.min(100,this.health+CFG.healPerH*simH);
-    if(this.health<=0){this.die();}
+    lifeStep(this,simH,{lying:this.lying,sheltered:this.sheltered,walk:clamp(this.speed/1.6,0,1)});
   }
   animate(dt,turn){
-    const B=this.brain,moving=this.speed>0.05&&!this.lying;
+    const B=this.brain,moving=this.speed>0.05&&!this.lying,now=performance.now();
     this.phase+=dt*(4+this.speed*6)*(moving?1:0);
     const sw=moving?Math.sin(this.phase)*0.55*clamp(this.speed/1.2,0.3,1):0;
     const isHeld=this===held||this.falling;
     this.legs.forEach((l,i)=>{let tx=(i===0||i===3)?sw:-sw;
-      if(this.lying)tx=(i<2?1:-1)*1.45; if(isHeld)tx=Math.sin(performance.now()*0.02+i)*0.5;
+      if(this.sick==='coxeira'&&i===1)tx*=0.3;
+      if(this.lying)tx=(i<2?1:-1)*1.45; if(isHeld)tx=Math.sin(now*0.02+i)*0.5; if(this.hopY>0)tx=(i<2?-0.5:0.5);
       l.rotation.x=lerp(l.rotation.x,tx,Math.min(1,dt*10));});
     const by=this.lying?0.52:0.92+(moving?Math.abs(Math.sin(this.phase))*0.05:0);
     this.body.position.y=lerp(this.body.position.y,by,Math.min(1,dt*5));
-    // cabeça: olhar à volta / pastar / beber
+    // lã cresce e encolhe com a tosquia
+    const wf=0.72+this.wool*0.0032;this.woolGroup.scale.set(wf,0.86+wf*0.14,wf);
+    // borregos crescem
+    const sc=0.55+0.45*this.growth;this.root.scale.setScalar(sc);
+    if(this.horns)this.horns.scale.setScalar(0.35+0.65*this.growth);
+    // cabeça e orelhas (orelhas para trás quando tem medo)
     const yawT=this.headDown?0:B.get('OLHAR H')*0.85,pitT=this.headDown?0.95:(this.lying?0.25:-B.get('OLHAR V')*0.35);
     this.headYaw=lerp(this.headYaw,yawT,Math.min(1,dt*5));this.headPitch=lerp(this.headPitch,pitT,Math.min(1,dt*4));
-    this.headPivot.rotation.set(this.headPitch+(this.headDown&&this.act?Math.sin(performance.now()*0.012)*0.06:0),this.headYaw,0);
-    this.tail.rotation.y=Math.sin(performance.now()*0.02)*B.get('CAUDA')*0.6;
-    this.tail.position.x=Math.sin(performance.now()*0.015)*Math.abs(B.get('CAUDA'))*0.08;
-    this.root.position.set(this.pos.x,this.y,this.pos.z);
+    this.headPivot.rotation.set(this.headPitch+(this.headDown&&this.act?Math.sin(now*0.012)*0.06:0),this.headYaw,0);
+    const eb=clamp(B.get('ORELHAS'),-1,1);this.ears.forEach((e,i)=>{const s=i?1:-1;e.rotation.y=lerp(e.rotation.y,-s*eb*0.9,Math.min(1,dt*6));});
+    this.tail.rotation.y=Math.sin(now*0.02)*B.get('CAUDA')*0.6;
+    this.tail.position.x=Math.sin(now*0.015)*Math.abs(B.get('CAUDA'))*0.08;
+    this.root.position.set(this.pos.x,this.y+this.hopY,this.pos.z);
     this.root.rotation.y=this.heading;
-    this.root.rotation.z=lerp(this.root.rotation.z,-turn*0.06*clamp(this.speed,0,1),Math.min(1,dt*4));
-    if(isHeld)this.root.rotation.x=Math.sin(performance.now()*0.006)*0.15;else this.root.rotation.x=lerp(this.root.rotation.x,0,Math.min(1,dt*6));
+    let roll=-turn*0.06*clamp(this.speed,0,1);if(this.sick==='coxeira'&&moving)roll+=Math.sin(this.phase*2)*0.1;
+    this.root.rotation.z=lerp(this.root.rotation.z,roll,Math.min(1,dt*4));
+    if(isHeld)this.root.rotation.x=Math.sin(now*0.006)*0.15;else this.root.rotation.x=lerp(this.root.rotation.x,0,Math.min(1,dt*6));
   }
-  placeBubble(){this.bubble.position.set(this.pos.x,this.y+(this.alive?2.35:1.6),this.pos.z);}
-  bleat(pitchMul=1){this.bleatCd=6+Math.random()*12;setBubble(this.bubble,this.id===9?'Béééé!':'Mééé!');this.bubbleT=1.6;
-    playBleat((this.id===9?300:380+(this.seed%90))*pitchMul,this.pos);}
-  die(){this.alive=false;this.health=0;this.setDeadLook();setBubble(this.bubble,'✝');this.bubbleT=0;toast(`💀 ${this.name} morreu… (fome ou sede)`);if(this===held)held=null;}
+  placeBubble(){const sc=0.55+0.45*this.growth;this.bubble.position.set(this.pos.x,this.y+this.hopY+(this.alive?2.35*sc:1.6),this.pos.z);}
+  bleat(pitchMul=1){this.bleatCd=6+Math.random()*12;setBubble(this.bubble,this.dark?'Béééé!':this.lamb?'mé!':'Mééé!');this.bubbleT=1.6;
+    playBleat((this.dark?300:this.sex==='m'?280:this.pitch)*pitchMul*(this.lamb?1.5:1),this.pos);}
+  die(reason){if(!this.alive)return;this.alive=false;this.health=0;this.cause=reason;this.deadH=0;this.pregnantH=null;this.setDeadLook();setBubble(this.bubble,'✝');this.bubbleT=0;
+    alertEv('morte-'+this.uid,'💀',`${this.name} morreu (${reason})`);if(this===held)held=null;}
   setDeadLook(){this.woolMat.color.copy(this.baseWool).lerp(new THREE.Color(0x8a8578),0.6);this.root.rotation.set(0,this.heading,Math.PI/2);this.body.position.y=0.5;
+    const sc=0.55+0.45*this.growth;this.root.scale.setScalar(sc);
     this.legs.forEach(l=>l.rotation.x=0.3);this.root.position.set(this.pos.x,H(this.pos.x,this.pos.z),this.pos.z);this.lying=false;this.headDown=false;setBubble(this.bubble,'✝');}
   thought(){
-    if(!this.alive)return 'Morreu… 🥀';
+    if(!this.alive)return `Morreu (${this.cause||'?'}) 🥀`;
     if(this===held)return 'Ai! Põe-me no chão! 😨';
     if(this.falling)return 'Aaaah! 😱';
-    const B=this.brain,f=Math.round(this.food),w=Math.round(this.water);
-    if(B.get('MEDO')>0.6)return 'Assustada! 😨';
+    const B=this.brain,f=Math.round(this.food),w=Math.round(this.water),I=this.inp,o=this.sex==='m'?'o':'a';
+    if(B.get('FUGIR')>0.5){
+      if(I[SI['predador perto']]>0.3)return 'Uma raposa! A fugir! 😱';
+      if(I[SI['cão perto']]>0.3)return 'O cão está a empurrar-me 🐕';
+      return 'Não confio em ti… a afastar-me 😰';}
+    if(B.get('MEDO')>0.6)return `Assustad${o}! 😨`;
+    const sick=this.sick?` (${DISEASES[this.sick].icon} ${DISEASES[this.sick].name})`:'';
     if(this.act==='bebe')return `A beber até matar a sede (água ${w}%) 💧`;
-    if(this.act==='feno')return `A comer feno até ficar cheia (${f}%) 🌾`;
-    if(this.act==='pasta')return `A pastar até ficar cheia (${f}%) 🌱`;
+    if(this.act==='feno')return `A comer feno, rúmen ${Math.round(this.rumen)}% 🌾`;
+    if(this.act==='pasta')return `A pastar ${GT_NAME[gtype[cellIdx(this.pos.x+Math.sin(this.heading)*0.8,this.pos.z+Math.cos(this.heading)*0.8)]??0]||'relva'}, rúmen ${Math.round(this.rumen)}% 🌱`;
+    if(this.outside)return 'Estou fora da cerca… onde está o rebanho? 😟';
+    if(B.get('JUNTO DONO')>0.4)return 'Olá! Festinhas? 🥰';
     switch(this.decision()){
-      case 'beber':return WATER.level>1?`Tenho sede (água ${w}%) → vou ao bebedouro 💧`:'Tenho sede e o bebedouro está vazio! 😟';
-      case 'comer':return B.get('P.FENO')>B.get('P.RELVA')?(HAY.level>1?`Tenho fome (${f}%) e há pouca relva → vou ao feno 🌾`:'Tenho fome e não há comida! 😟'):`Tenho fome (${f}%) → à procura de relva 🌱`;
-      case 'dormir':return this.lying?'A dormir 💤':'Com sono → à procura de sítio para deitar 😪';
-      case 'descansar':return this.lying?'Barriga cheia → deitada a ruminar 😌':'Satisfeita → vou descansar 😌';
+      case 'beber':return (WATER.level>1?`Tenho sede (água ${w}%) → vou ao bebedouro 💧`:'Tenho sede e o bebedouro está vazio! 😟')+sick;
+      case 'comer':return (B.get('P.FENO')>B.get('P.RELVA')?(HAY.level>1?`Tenho fome (${f}%) e há pouca relva → vou ao feno 🌾`:'Tenho fome e não há comida! 😟'):
+        (I[SI['memória boa']]>I[SI['relva vista']]?`Tenho fome → lembro-me de boa relva noutro sítio 🧠🌱`:`Tenho fome (${f}%) → à procura de relva 🌱`))+sick;
+      case 'dormir':return (this.lying?'A dormir 💤':'Com sono → à procura de sítio para deitar 😪')+sick;
+      case 'descansar':return (this.lying?(this.rumen>15?`Deitad${o} a ruminar 😌`:'A descansar 😌'):`Satisfeit${o} → vou descansar 😌`)+sick;
+      case 'abrigo':{const hot=this.hot>this.cold;if(B.get('ABRIGADA')>0.4)return (hot?`À sombra, fresquinh${o} 🌳`:`Abrigad${o} do frio e da chuva 🏠`)+sick;
+        return (hot?`Está muito calor (sinto ${Math.round(this.heatFeel??this.feel)} °C) → à procura de sombra 🥵`:`Tenho frio (sinto ${Math.round(this.feel)} °C) → vou para o abrigo 🥶`)+sick;}
     }
+    if(this.lamb&&B.get('SOCIAL')>0.45)return 'Onde está a mãe? 🍼';
     if(B.get('ESPAÇO')>0.55)return 'Muita gente aqui → a afastar-me 🙄';
     if(B.get('SOCIAL')>0.5)return 'Longe do rebanho → a voltar 🐑';
-    if(B.get('VAGUEAR')>0.45)return 'Satisfeita → a explorar 👀';
-    return 'A ruminar… 🌀';
+    if(B.get('AFEIÇÃO')>0.5)return 'Gosto de ti! 🥰';
+    if(B.get('VAGUEAR')>0.45)return (this.lamb?'A brincar e explorar! 🐑✨':`Satisfeit${o} → a explorar 👀`)+sick;
+    return 'A ruminar… 🌀'+sick;
   }
-  // objetivo atual = neurónio de decisão mais ativo (se passar o limiar)
   decision(){const B=this.brain;let best=null,bv=0.5;for(const [k,n] of DECISIONS){const v=B.get(k);if(v>bv){bv=v;best=n;}}return best;}
 }
 
 /* ============================================================
-   Som — balido sintetizado
+   Biologia comum (usada em tempo real, acelerado e offline)
    ============================================================ */
+function airTemp(){
+  if(env.tempOverride!=null)return env.tempOverride;
+  if(env.temp!=null)return env.temp;
+  return SEASONS[state.season??2].temp+(env.light-0.5)*8;
+}
+function thermal(s,sh){
+  const T=airTemp(),wind=env.wx?.wind??8;
+  const feel=T-wind*0.08*(1-sh)-s.wet*5*(1-sh*0.5)+s.wool*0.07-(env.light<0.3?1.5:0)-(s.lamb?3:0)+sh*2;
+  // stress térmico: a lã grossa só pesa com calor a sério (>~28 °C); a sombra tira o efeito do sol
+  const heat=T+s.wool*0.04+env.light*(1-env.cloud)*3*(1-sh)-2;
+  s.feel=feel;s.heatFeel=heat;s.cold=clamp((6-feel)/12,0,1);s.hot=clamp((heat-28)/10,0,1);
+}
+function getSick(s,t){if(s.sick||!s.alive)return;s.sick=t;s.sickH=0;alertEv('doente-'+s.uid,'🤒',`${s.name} ficou doente: ${DISEASES[t].txt}`);}
+function lifeStep(s,h,o){
+  if(!s.alive||h<=0)return;
+  const lying=o.lying,meta=lying?CFG.sleepMeta:1,sh=o.sheltered||0;
+  s.ageDays+=h/24;
+  s.wool=Math.min(100,s.wool+CFG.woolPerDay*h/24);
+  // rúmen → nutrição (ruminar deitada digere mais depressa; parasitas roubam nutrientes)
+  // só digere o que cabe (barriga cheia = o rúmen fica cheio e ela deixa de ter fome)
+  const eff=s.sick==='parasitas'?0.6:1,burn=CFG.hungerPerH*meta*h*(s.lamb?1.15:1);
+  const dig=Math.min(s.rumen,CFG.digestPerH*h*(lying?CFG.ruminateMul:1),Math.max(0,(100-s.food+burn)/eff));s.rumen-=dig;
+  s.food=clamp(s.food+dig*eff-burn,0,100);
+  thermal(s,sh);
+  s.water=Math.max(0,s.water-CFG.thirstPerH*meta*h*(1+s.hot*0.9));
+  if(lying)s.fatigue=Math.max(0,s.fatigue-CFG.restPerH*h);
+  else s.fatigue=Math.min(100,s.fatigue+(CFG.fatiguePerH+CFG.walkFatiguePerH*(o.walk||0)+s.cold*6+s.hot*4+(s.sick?3:0))*h);
+  const wetIn=Math.max(env.rain,env.storm,env.snow*0.6)*(1-sh);
+  s.wet=clamp(s.wet+(wetIn>0?wetIn*0.8:-0.25)*h,0,1);
+  const dmg={};
+  if(s.food<=0)dmg.fome=CFG.dmgPerH*h;
+  if(s.water<=0)dmg.sede=CFG.dmgPerH*h*(s.food<=0?0.6:1);
+  if(s.cold>0.3)dmg.frio=CFG.coldDmgPerH*(s.cold-0.3)*h*(s.lamb?2.5:1)*(s.sick?1.5:1);
+  if(s.hot>0.6&&s.water<35)dmg.calor=12*(s.hot-0.6)*h;
+  if(s.sick){s.sickH+=h;dmg.doença=DISEASES[s.sick].dmg*h;
+    if(Math.random()<CFG.recoverPerH*h*(s.health>60?2:1)){const t=s.sick;s.sick=null;alertEv('cura-'+s.uid,'🌿',`${s.name} recuperou sozinha da ${DISEASES[t].name}`,{notify:false});}}
+  else{const p=CFG.diseasePerH*h*(1+(100-s.health)/25+s.cold*4+s.wet*3+(s.old?2:0)+(s.lamb?1:0));
+    if(Math.random()<p){const w={tosse:1+s.cold*4+s.wet*2,coxeira:0.5+s.wet*3,parasitas:0.8};let t=Math.random()*(w.tosse+w.coxeira+w.parasitas);
+      getSick(s,t<w.tosse?'tosse':t<w.tosse+w.coxeira?'coxeira':'parasitas');}}
+  let total=0,cause='';for(const k in dmg){total+=dmg[k];if(!cause||dmg[k]>dmg[cause])cause=k;}
+  s.health-=total;
+  if(total===0&&s.food>25&&s.water>25&&!s.sick)s.health=Math.min(100,s.health+CFG.healPerH*h);
+  if(s.ageDays>CFG.maxAgeDays&&Math.random()<0.004*h*(s.ageDays-CFG.maxAgeDays)/30){cause='velhice';s.health=0;}
+  s.trust+=(0.05-s.trust)*0.01*h;
+  // reprodução (precisa de um carneiro adulto vivo; gestação de 3 dias simulados)
+  s.breedCd=Math.max(0,s.breedCd-h);
+  if(s.pregnantH!=null){s.pregnantH-=h;if(s.pregnantH<=0)giveBirth(s);}
+  else if(s.sex==='f'&&!s.lamb&&s.ageDays<CFG.maxAgeDays-30&&s.breedCd<=0&&!s.sick&&s.health>75&&s.food>50&&s.water>50&&Math.random()<CFG.breedPerH*h){
+    const rams=sheep.filter(o=>o.alive&&o.sex==='m'&&!o.lamb);
+    const slots=MAX_SHEEP-sheep.filter(o=>o.alive).length-sheep.filter(o=>o.alive&&o.pregnantH!=null).length;
+    if(rams.length&&slots>0){const f=rams[(Math.random()*rams.length)|0];s.pregnantH=CFG.gestationH;s.fatherGenome=f.genome;s.fatherName=f.name;
+      alertEv('gravida-'+s.uid,'🤰',`${s.name} está grávida (pai: ${f.name}) — o borrego nasce daqui a 3 dias`,{notify:false});}}
+  if(s.health<=0)s.die(CAUSES[cause]||cause||'?');
+}
+function contagion(h){
+  if(h<=0)return;
+  for(const s of sheep){if(!s.alive||!s.sick)continue;const c=DISEASES[s.sick].contagio;if(!c)continue;
+    for(const o of sheep){if(o===s||!o.alive||o.sick)continue;if(dist2(o.pos,s.pos)<2.5&&Math.random()<CFG.contagionPerH*h*c)getSick(o,s.sick);}}
+}
+function lambName(sex){const used=new Set(sheep.map(s=>s.name));const pool=sex==='m'?LAMB_NAMES_M:LAMB_NAMES_F;
+  const free=pool.filter(n=>!used.has(n));if(free.length)return free[(Math.random()*free.length)|0];
+  let k=2;const base=pool[(Math.random()*pool.length)|0];while(used.has(base+' '+k))k++;return base+' '+k;}
+function giveBirth(m){
+  m.pregnantH=null;m.breedCd=CFG.breedCdH;m.health=Math.max(30,m.health-8);
+  if(sheep.filter(o=>o.alive).length>=MAX_SHEEP){m.fatherGenome=null;return;}
+  const g=inheritGenome(m.genome,m.fatherGenome||m.genome);m.fatherGenome=null;
+  const a=Math.random()*6.28;let x=m.pos.x+Math.cos(a)*1.3,z=m.pos.z+Math.sin(a)*1.3;const r=Math.hypot(x,z);if(!m.outside&&r>R-1.2){x*=(R-1.2)/r;z*=(R-1.2)/r;}
+  const s=new Sheep({uid:state.nextUid++,name:lambName(g.sex),genome:g,sex:g.sex,x,z,h:m.heading,food:80,water:85,rumen:30,health:100,fatigue:20,alive:true,ageDays:0,wool:25,
+    trust:clamp(m.trust*0.6,-1,1),motherUid:m.uid,gen:(m.gen||1)+1,outside:m.outside});
+  sheep.push(s);buildRoster();
+  alertEv('nasc-'+s.uid,'🍼',`Nasceu ${s.name} (${g.sex==='m'?'macho':'fêmea'}), filh${g.sex==='m'?'o':'a'} de ${m.name} e ${m.fatherName||'?'}${s.dark?' — é uma ovelha negra!':''}`);
+}
+function removeSheep(s){
+  scene.remove(s.root);scene.remove(s.bubble);
+  for(let i=pickables.length-1;i>=0;i--)if(pickables[i].userData.sheep===s)pickables.splice(i,1);
+  const i=sheep.indexOf(s);if(i>=0)sheep.splice(i,1);
+  if(selected===s)select(null);buildRoster();
+  alertEv('enterro-'+s.uid,'⚰️',`${s.name} foi enterrada`,{notify:false});
+}
+function shear(s){
+  if(!s||!s.alive)return;if(s.wool<25){toast('✂️ Ainda tem pouca lã para tosquiar');return;}
+  const earn=Math.round(s.wool*CFG.price.woolPerUnit);state.money+=earn;s.wool=3;s.trust=clamp(s.trust-0.05,-1,1);
+  alertEv('tosquia-'+s.uid,'✂️',`Tosquiaste ${s.name}: +€${earn}${state.season===3?' — cuidado, sem lã vai ter frio no inverno!':''}`,{notify:false});
+}
+function treat(s){
+  if(!s||!s.sick)return;if(!spend(CFG.price.treat))return;const t=s.sick;s.sick=null;s.trust=clamp(s.trust-0.05,-1,1);
+  alertEv('trata-'+s.uid,'💊',`Trataste ${s.name} (${DISEASES[t].name}): −€${CFG.price.treat}`,{notify:false});
+}
+function pet(s){
+  if(!s||!s.alive)return;
+  if(s.trust<-0.5&&Math.random()<0.6){setBubble(s.bubble,'😰');s.bubbleT=1.4;s.trust+=0.04;s.afterFear=0.5;return;}
+  s.trust=Math.min(1,s.trust+0.15);setBubble(s.bubble,'❤️');s.bubbleT=1.5;if(Math.random()<0.4)setTimeout(()=>s.bleat(1.05),400);
+}
+
+/* ============================================================
+   Cão pastor e raposa
+   ============================================================ */
+function buildQuadruped(o){
+  const g=new THREE.Group(),body=new THREE.Group();body.position.y=o.h;g.add(body);
+  const torso=new THREE.Mesh(new THREE.BoxGeometry(o.w,o.w*1.0,o.len),o.main);body.add(torso);
+  const chest=new THREE.Mesh(new THREE.SphereGeometry(o.w*0.6,10,8),o.light);chest.position.set(0,-o.w*0.05,o.len*0.42);chest.scale.set(1,1.1,0.8);body.add(chest);
+  const head=new THREE.Group();head.position.set(0,o.w*0.75,o.len*0.58);body.add(head);
+  const skull=new THREE.Mesh(new THREE.BoxGeometry(o.w*0.85,o.w*0.78,o.w*0.9),o.main);head.add(skull);
+  const muzzle=new THREE.Mesh(new THREE.BoxGeometry(o.w*0.45,o.w*0.36,o.snout),o.light);muzzle.position.set(0,-o.w*0.15,o.w*0.45+o.snout*0.45);head.add(muzzle);
+  const nose=new THREE.Mesh(new THREE.SphereGeometry(0.035,6,5),o.dark);nose.position.set(0,-o.w*0.05,o.w*0.45+o.snout*0.95);head.add(nose);
+  const eyes=[];
+  for(const s of [-1,1]){const ear=new THREE.Mesh(new THREE.ConeGeometry(o.ear*0.45,o.ear,4),o.main);ear.position.set(s*o.w*0.3,o.w*0.55,-0.02);ear.rotation.z=s*-0.25;head.add(ear);
+    const eye=new THREE.Mesh(new THREE.SphereGeometry(0.035,6,5),o.eye);eye.position.set(s*o.w*0.25,o.w*0.12,o.w*0.46);head.add(eye);eyes.push(eye);}
+  const tailP=new THREE.Group();tailP.position.set(0,o.w*0.3,-o.len*0.5);body.add(tailP);
+  const tail=new THREE.Mesh(new THREE.ConeGeometry(o.tailW,o.tailL,6),o.main);tail.rotation.x=-Math.PI/2;tail.position.z=-o.tailL*0.45;tailP.add(tail);
+  const tip=new THREE.Mesh(new THREE.SphereGeometry(o.tailW*0.7,6,5),o.light);tip.position.z=-o.tailL*0.85;tailP.add(tip);
+  tailP.rotation.x=o.tailUp;
+  const legs=[],lg=new THREE.CylinderGeometry(0.05,0.045,o.h,5);lg.translate(0,-o.h/2,0);
+  for(const [x,z] of [[1,1],[-1,1],[1,-1],[-1,-1]]){const p=new THREE.Group();p.position.set(x*o.w*0.32,-o.w*0.35,z*o.len*0.36);body.add(p);p.add(new THREE.Mesh(lg,o.legs));legs.push(p);}
+  g.traverse(m=>{if(m.isMesh)m.castShadow=true;});scene.add(g);
+  return {g,body,head,tailP,legs,eyes};
+}
+const dog={pos:new THREE.Vector3(-3,0,15),heading:Math.PI,speed:0,running:false,barkCd:0,phase:0,home:{x:-3,z:15},
+  m:buildQuadruped({h:0.42,w:0.34,len:0.85,snout:0.2,ear:0.17,tailW:0.06,tailL:0.45,tailUp:0.5,main:toon(0x1e1b1a),light:toon(0xf3eee6),dark:toon(0x111111),legs:toon(0xf3eee6),eye:new THREE.MeshBasicMaterial({color:0x2a1a10})}),
+  update(dt){
+    let goal=null,spd=0;this.running=false;
+    const foxNear=fox.active&&fox.mode!=='flee'&&Math.hypot(fox.pos.x,fox.pos.z)<R+8;
+    if(foxNear){goal=fox.pos;spd=6.2;this.running=true;if(dist2(this.pos,fox.pos)<8&&this.barkCd<=0){playBark(this.pos);this.barkCd=1.5;}}
+    else if(state.herd&&herdTarget){goal=herdTarget;spd=5.5;this.running=dist2(this.pos,herdTarget)>0.8;
+      if(this.running&&this.barkCd<=0&&Math.random()<dt*0.6){playBark(this.pos);this.barkCd=3;}}
+    else if(dist2(this.pos,this.home)>2.5){goal=this.home;spd=2.2;}
+    if(goal){const dx=goal.x-this.pos.x,dz=goal.z-this.pos.z,d=Math.hypot(dx,dz);
+      if(d>0.6){this.heading=lerpA(this.heading,Math.atan2(dx,dz),Math.min(1,dt*8));this.speed=lerp(this.speed,spd*Math.min(1,d/1.5),Math.min(1,dt*4));}
+      else this.speed=lerp(this.speed,0,Math.min(1,dt*6));}
+    else this.speed=lerp(this.speed,0,Math.min(1,dt*4));
+    this.pos.x+=Math.sin(this.heading)*this.speed*dt;this.pos.z+=Math.cos(this.heading)*this.speed*dt;
+    pushOutBox(HAY,this.pos,0.5);pushOutBox(WATER,this.pos,0.5);pushOutBox(SHED_WALL,this.pos,0.4);
+    {const r=Math.hypot(this.pos.x,this.pos.z);if(r>46){this.pos.x*=46/r;this.pos.z*=46/r;}}
+    this.barkCd-=dt;this.phase+=dt*(3+this.speed*4);
+    // animação
+    const M=this.m,mv=this.speed>0.15,sit=!mv&&!state.herd;
+    M.g.position.set(this.pos.x,H(this.pos.x,this.pos.z),this.pos.z);M.g.rotation.y=this.heading;
+    M.legs.forEach((l,i)=>{const s=mv?Math.sin(this.phase+(i%2?Math.PI:0)+(i>1?0.6:0))*0.7:0;l.rotation.x=sit&&i>1?-1.2:s;});
+    M.body.rotation.x=lerp(M.body.rotation.x,sit?-0.35:0,Math.min(1,dt*4));M.body.position.y=lerp(M.body.position.y,sit?0.32:0.42,Math.min(1,dt*4));
+    M.tailP.rotation.y=Math.sin(performance.now()*0.018)*(mv?0.3:0.6);
+  }};
+dog.m.g.scale.setScalar(1.1);
+
+const fox={active:false,pos:new THREE.Vector3(40,0,0),heading:0,mode:'',target:null,attackT:0,t:0,phase:0,gapA:0,pickT:0,
+  m:buildQuadruped({h:0.32,w:0.3,len:0.8,snout:0.26,ear:0.2,tailW:0.13,tailL:0.65,tailUp:0.25,main:toon(0xd2691e),light:toon(0xf5efe6),dark:toon(0x111111),legs:toon(0x2a1c14),eye:new THREE.MeshBasicMaterial({color:0xffe066})}),
+  spawn(){const a=Math.random()*6.28;this.pos.set(Math.cos(a)*42,0,Math.sin(a)*42);this.active=true;this.mode='prowl';this.t=0;this.target=null;this.attackT=0;this.m.g.visible=true;
+    alertEv('raposa','🦊','Uma raposa anda à volta do cercado!',{cooldownH:6});},
+  update(dt){
+    if(!this.active)return;this.t+=dt;
+    if(this.mode!=='flee'&&(env.light>0.45||dist2(dog.pos,this.pos)<5.5)){this.mode='flee';}
+    let goal=null,spd=2.2;const r=Math.hypot(this.pos.x,this.pos.z),a=Math.atan2(this.pos.z,this.pos.x);
+    if(this.mode==='prowl'){
+      const bi=FENCE.findIndex(f=>f.hp<0.35);
+      if(bi>=0){const ga=(bi+0.5)/FENCE.length*Math.PI*2;goal={x:Math.cos(ga)*(R+2.5),z:Math.sin(ga)*(R+2.5)};spd=2.6;
+        if(dist2(this.pos,goal)<1.2){this.mode='enter';this.gapA=ga;}}
+      else{goal={x:Math.cos(a+0.3)*(R+3),z:Math.sin(a+0.3)*(R+3)};if(this.t>150)this.mode='flee';}
+    }else if(this.mode==='enter'){goal={x:Math.cos(this.gapA)*(R-3),z:Math.sin(this.gapA)*(R-3)};spd=2.8;if(dist2(this.pos,goal)<1){this.mode='hunt';this.huntStart=this.t;}}
+    else if(this.mode==='hunt'){
+      this.pickT-=dt;
+      if(!this.target||!this.target.alive||this.pickT<=0){this.pickT=1;let best=null,bs=-1e9;
+        for(const s of sheep){if(!s.alive||s===held)continue;const sc=(s.lamb?2:0)+(s.sick?1:0)+(1-s.health/100)-dist2(s.pos,this.pos)*0.05;if(sc>bs){bs=sc;best=s;}}this.target=best;}
+      if(!this.target){this.mode='flee';}
+      else{goal=this.target.pos;spd=4.3;if(this.t>this.huntStart+60)this.mode='flee';
+        if(dist2(this.pos,this.target.pos)<1){this.attackT+=dt;if(this.attackT>1.2){const s=this.target;s.health-=s.lamb?80:45;s.afterFear=1;
+          alertEv('ataque-'+s.uid,'🦊',`A raposa atacou ${s.name}!`);if(s.health<=0)s.die('ataque de raposa');this.mode='flee';}}}
+    }else{goal={x:this.pos.x/(r||1)*52,z:this.pos.z/(r||1)*52};spd=4.6;if(r>47){this.active=false;this.m.g.visible=false;return;}}
+    if(goal){const dx=goal.x-this.pos.x,dz=goal.z-this.pos.z;this.heading=lerpA(this.heading,Math.atan2(dx,dz),Math.min(1,dt*6));}
+    this.pos.x+=Math.sin(this.heading)*spd*dt;this.pos.z+=Math.cos(this.heading)*spd*dt;
+    if(this.mode==='prowl'){const rr=Math.hypot(this.pos.x,this.pos.z);if(rr<R+1.5){this.pos.x*=(R+1.5)/rr;this.pos.z*=(R+1.5)/rr;}}
+    this.phase+=dt*(4+spd*3);
+    const M=this.m;M.g.position.set(this.pos.x,H(this.pos.x,this.pos.z),this.pos.z);M.g.rotation.y=this.heading;
+    M.legs.forEach((l,i)=>{l.rotation.x=Math.sin(this.phase+(i%2?Math.PI:0)+(i>1?0.6:0))*0.8;});
+    M.tailP.rotation.y=Math.sin(performance.now()*0.008)*0.25;
+    M.eyes.forEach(e=>e.visible=env.light<0.4);
+  }};
+fox.m.g.visible=false;
+let herdTarget=null;
+
 let actx=null,muted=false,lastBleat=0;
 function initAudio(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(actx&&actx.state==='suspended')actx.resume();}
 function playBleat(f,pos){
@@ -734,9 +1157,47 @@ function playBleat(f,pos){
 function playThunder(){if(muted||!actx||actx.state!=='running')return;const now=actx.currentTime,len=2.5,buf=actx.createBuffer(1,actx.sampleRate*len,actx.sampleRate),d=buf.getChannelData(0);
   for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);const s=actx.createBufferSource();s.buffer=buf;const f=actx.createBiquadFilter();f.type='lowpass';f.frequency.value=180;const g=actx.createGain();g.gain.value=0.5;s.connect(f);f.connect(g);g.connect(actx.destination);s.start(now+0.4+Math.random());}
 
-/* ============================================================
-   Tempo, sol e meteorologia
-   ============================================================ */
+function noiseBuffer(sec){const b=actx.createBuffer(1,actx.sampleRate*sec,actx.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return b;}
+function playCough(pos){
+  if(muted||!actx||actx.state!=='running')return;const now=actx.currentTime,vol=clamp(1.2/(1+camera.position.distanceTo(pos)*0.06),0.02,0.25);
+  for(const t of [0,0.22]){const s=actx.createBufferSource();s.buffer=noiseBuffer(0.2);const f=actx.createBiquadFilter();f.type='bandpass';f.frequency.value=650;f.Q.value=1.2;
+    const g=actx.createGain();g.gain.setValueAtTime(0,now+t);g.gain.linearRampToValueAtTime(vol,now+t+0.02);g.gain.exponentialRampToValueAtTime(0.001,now+t+0.16);
+    s.connect(f);f.connect(g);g.connect(actx.destination);s.start(now+t);s.stop(now+t+0.2);}
+}
+function playBark(pos){
+  if(muted||!actx||actx.state!=='running')return;const now=actx.currentTime,vol=clamp(1.4/(1+camera.position.distanceTo(pos)*0.05),0.03,0.3);
+  for(const t of [0,0.18]){const o=actx.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(520,now+t);o.frequency.exponentialRampToValueAtTime(240,now+t+0.12);
+    const f=actx.createBiquadFilter();f.type='bandpass';f.frequency.value=900;f.Q.value=1;const g=actx.createGain();
+    g.gain.setValueAtTime(0,now+t);g.gain.linearRampToValueAtTime(vol,now+t+0.01);g.gain.exponentialRampToValueAtTime(0.001,now+t+0.14);
+    o.connect(f);f.connect(g);g.connect(actx.destination);o.start(now+t);o.stop(now+t+0.16);}
+}
+/* som ambiente: vento, chuva, pássaros (de dia) e grilos (à noite) */
+let amb=null,birdT=0;
+function initAmbient(){
+  if(!actx||amb)return;
+  const master=actx.createGain();master.gain.value=muted?0:1;master.connect(actx.destination);
+  const loop=(type,freq)=>{const s=actx.createBufferSource();s.buffer=noiseBuffer(2);s.loop=true;const f=actx.createBiquadFilter();f.type=type;f.frequency.value=freq;const g=actx.createGain();g.gain.value=0;s.connect(f);f.connect(g);g.connect(master);s.start();return g;};
+  const wind=loop('lowpass',380),rain=loop('highpass',1400);
+  const cr=actx.createOscillator();cr.frequency.value=4400;const crAm=actx.createGain();crAm.gain.value=0;const lfo=actx.createOscillator();lfo.type='square';lfo.frequency.value=28;
+  const lfoG=actx.createGain();lfoG.gain.value=0.5;lfo.connect(lfoG);lfoG.connect(crAm.gain);const crG=actx.createGain();crG.gain.value=0;cr.connect(crAm);crAm.connect(crG);crG.connect(master);cr.start();lfo.start();
+  amb={master,wind,rain,cricket:crG};
+}
+function chirp(){
+  if(!amb)return;const now=actx.currentTime,base=2600+Math.random()*1800,n=2+((Math.random()*4)|0);
+  for(let i=0;i<n;i++){const t=now+i*0.11,o=actx.createOscillator();o.type='sine';o.frequency.setValueAtTime(base,t);o.frequency.exponentialRampToValueAtTime(base*1.45,t+0.06);
+    const g=actx.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.025,t+0.015);g.gain.exponentialRampToValueAtTime(0.0005,t+0.08);o.connect(g);g.connect(amb.master);o.start(t);o.stop(t+0.09);}
+}
+function updateAmbient(dt){
+  if(!actx||actx.state!=='running')return;initAmbient();if(!amb)return;
+  const now=actx.currentTime,set=(g,v)=>g.gain.setTargetAtTime(v,now,0.6);
+  amb.master.gain.setTargetAtTime(muted?0:1,now,0.1);
+  const wind=env.wx?.wind??8;set(amb.wind,clamp(wind/60,0,1)*0.1+0.008+env.storm*0.05);
+  set(amb.rain,Math.max(env.rain,env.storm)*0.14);
+  const night=env.light<0.25,quiet=env.rain>0||env.snow>0||airTemp()<8;
+  set(amb.cricket,night&&!quiet&&state.season!==3?0.006:0);
+  birdT-=dt;if(birdT<=0){birdT=1.5+Math.random()*5;if(env.light>0.5&&!quiet&&Math.random()<0.7)chirp();}
+}
+
 function sunPos(ms,lat,lon){
   const rad=Math.PI/180,d=ms/86400000-10957.5;
   const g=(357.529+0.98560028*d)*rad,q=280.459+0.98564736*d;
@@ -755,16 +1216,18 @@ const WICON=c=>c===0||c===1?'☀️':c===2?'⛅':c===3?'☁️':c<50?'🌫️':c
 function applyWeather(){
   let code=0,cloud=0,precip=0;
   if(env.override==='auto'&&env.wx){code=env.wx.code;cloud=env.wx.cloud;precip=env.wx.precip;}
-  else if(env.override!=='auto'){code={clear:0,cloudy:3,rain:63,storm:95,snow:73,fog:45}[env.override];cloud=code===0?0.05:1;precip=code===63?2:code===95?6:code===73?1.5:0;}
+  else if(env.override!=='auto'){code={clear:0,cloudy:3,rain:63,storm:95,snow:73,fog:45,hot:0,cold:3}[env.override];cloud=code===0?0.05:1;precip=code===63?2:code===95?6:code===73?1.5:0;}
   const isRain=(code>=51&&code<=67)||(code>=80&&code<=82),isSnow=(code>=71&&code<=77)||code===85||code===86,isStorm=code>=95;
   env.rain=isRain?clamp(0.35+precip/4,0.35,1):isStorm?1:0;
   env.snow=isSnow?clamp(0.4+precip/3,0.4,1):0;env.storm=isStorm?1:0;env.fog=(code===45||code===48)?1:0;
   env.cloud=Math.max(cloud,isRain||isSnow||isStorm?0.85:0,env.fog?0.9:0);
   env.code=code;
-  const tTxt=env.override==='auto'&&env.wx&&env.wx.temp!=null?` · ${Math.round(env.wx.temp)} °C`:'';
+  env.tempOverride=env.override==='auto'?null:({hot:36,cold:-4,snow:-1}[env.override]??null);
+  const tShow=env.tempOverride??(env.override==='auto'&&env.wx?env.wx.temp:null);
+  const tTxt=tShow!=null?` · ${Math.round(tShow)} °C`:'';
   env.temp=env.override==='auto'&&env.wx?env.wx.temp:null;
   const src=env.override==='auto'?(env.wx?'':' (sem ligação)'):' (manual)';
-  $('wx').textContent=`${WICON(code)} ${WMO[code]||'—'}${tTxt}${src}`;
+  $('wx').textContent=`${env.override==='hot'?'🥵 Onda de calor':env.override==='cold'?'🥶 Frio intenso':WICON(code)+' '+(WMO[code]||'—')}${tTxt}${src}`;
 }
 async function fetchWeather(){
   try{const u=`https://api.open-meteo.com/v1/forecast?latitude=${env.lat.toFixed(2)}&longitude=${env.lon.toFixed(2)}&current=temperature_2m,precipitation,weather_code,cloud_cover,wind_speed_10m&timezone=auto`;
@@ -785,6 +1248,32 @@ function locate(){
     $('place').textContent=`📍 ${Math.abs(env.lat).toFixed(2)}°${env.lat>=0?'N':'S'}, ${Math.abs(env.lon).toFixed(2)}°${env.lon>=0?'E':'W'}`;fetchWeather();
   },()=>{},{timeout:10000,maximumAge:3600000});}
   setInterval(fetchWeather,15*60*1000);
+}
+
+// estação a partir da data e do hemisfério (0 primavera · 1 verão · 2 outono · 3 inverno)
+function seasonAt(ms){
+  const d=new Date(ms),doy=(d-new Date(d.getFullYear(),0,0))/864e5;
+  let ph=((doy-79+365)%365)/365;if(env.lat<0)ph=(ph+0.5)%1;
+  return Math.floor(ph*4)%4;
+}
+// luminosidade (0 noite · 1 dia) só a partir da posição do sol — usada também offline
+function lightAt(ms){const {alt}=sunPos(ms,env.lat,env.lon),altD=alt*180/Math.PI;return clamp(0.05+0.95*smooth(-6,8,altD),0,1)*(1-env.cloud*0.25);}
+
+/* folhas a cair no outono */
+const LEAF_N=260,leafPos=new Float32Array(LEAF_N*3),leafCol=new Float32Array(LEAF_N*3),leafSeed=new Float32Array(LEAF_N);
+const leafGeo=new THREE.BufferGeometry();leafGeo.setAttribute('position',new THREE.BufferAttribute(leafPos,3));leafGeo.setAttribute('color',new THREE.BufferAttribute(leafCol,3));
+const leaves=new THREE.Points(leafGeo,new THREE.PointsMaterial({size:0.22,vertexColors:true,transparent:true,opacity:0.95}));leaves.frustumCulled=false;scene.add(leaves);
+const leafTrees=trees.filter(t=>!t.pine);
+function resetLeaf(i,init){const t=leafTrees[(Math.random()*leafTrees.length)|0];
+  leafPos[i*3]=t.x+(Math.random()-0.5)*2.5*t.s;leafPos[i*3+1]=H(t.x,t.z)+(init?Math.random()*4:3+Math.random()*1.5)*t.s;leafPos[i*3+2]=t.z+(Math.random()-0.5)*2.5*t.s;leafSeed[i]=Math.random()*10;
+  const c=new THREE.Color(LEAF_COLS[2][(Math.random()*4)|0]);leafCol.set([c.r,c.g,c.b],i*3);}
+for(let i=0;i<LEAF_N;i++)resetLeaf(i,true);
+function updateLeaves(dt){
+  leaves.visible=state.season===2;if(!leaves.visible)return;
+  const t=performance.now()*0.001,wind=(env.wx?.wind??8)*0.04;
+  for(let i=0;i<LEAF_N;i++){const o=i*3;leafPos[o+1]-=0.7*dt;leafPos[o]+=(Math.sin(t*1.7+leafSeed[i])*0.6+wind)*dt;leafPos[o+2]+=Math.cos(t*1.3+leafSeed[i])*0.5*dt;
+    if(leafPos[o+1]<H(leafPos[o],leafPos[o+2])+0.05)resetLeaf(i,false);}
+  leafGeo.attributes.position.needsUpdate=true;leafGeo.attributes.color.needsUpdate=true;
 }
 
 const C_DAY_T=new THREE.Color(0x4f9be0),C_DAY_H=new THREE.Color(0xd4ecf7),C_DUSK_T=new THREE.Color(0x5a68a8),C_DUSK_H=new THREE.Color(0xf6a66c),C_NIGHT_T=new THREE.Color(0x050a1e),C_NIGHT_H=new THREE.Color(0x1a2450);
@@ -832,7 +1321,8 @@ const rain=new THREE.LineSegments(rainGeo,new THREE.LineBasicMaterial({color:0xb
 for(let i=0;i<RAIN_N;i++){const x=(Math.random()-0.5)*80,y=Math.random()*40,z=(Math.random()-0.5)*80;rainPos.set([x,y,z,x,y-0.7,z],i*6);}
 const SNOW_N=3500,snowPos=new Float32Array(SNOW_N*3);
 const snowGeo=new THREE.BufferGeometry();snowGeo.setAttribute('position',new THREE.BufferAttribute(snowPos,3));
-const snow=new THREE.Points(snowGeo,new THREE.PointsMaterial({color:0xffffff,size:0.22,transparent:true,opacity:0.9}));snow.frustumCulled=false;scene.add(snow);
+const flakeTex=(()=>{const c=document.createElement('canvas');c.width=c.height=32;const g=c.getContext('2d');const r=g.createRadialGradient(16,16,0,16,16,16);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(0.5,'rgba(255,255,255,.8)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,32,32);return new THREE.CanvasTexture(c);})();
+const snow=new THREE.Points(snowGeo,new THREE.PointsMaterial({color:0xffffff,size:0.16,map:flakeTex,transparent:true,opacity:0.95,depthWrite:false}));snow.frustumCulled=false;scene.add(snow);
 for(let i=0;i<SNOW_N;i++)snowPos.set([(Math.random()-0.5)*80,Math.random()*35,(Math.random()-0.5)*80],i*3);
 function updatePrecip(dt){
   const tx=controls.target.x,tz=controls.target.z,wind=(env.wx?.wind||8)*0.02;
@@ -911,16 +1401,22 @@ function drawFrame(){
    Visualizador do cérebro (estilo explorador de connectome)
    ============================================================ */
 const bcv=$('brain'),bg=bcv.getContext('2d');
-const B3=TOPO.nodes.map((n,i)=>{const r=rng(1000+i);
-  const ell=(cx,cy,cz,ax,ay,az)=>{let x,y,z;do{x=r()*2-1;y=r()*2-1;z=r()*2-1;}while(x*x+y*y+z*z>1);return [cx+x*ax,cy+y*ay,cz+z*az];};
-  if(n.kind==='s'){const side=i%2?1:-1;return ell(side*1.35,0.05,0,0.32,0.6,0.32);}
-  if(n.kind==='r')return ell(0,0.12,0,0.85,0.5,0.45);
-  if(n.kind==='i'){const k=i-TOPO.NS,a=k/INTER.length*Math.PI*2;return [Math.cos(a)*0.42,0.15+Math.sin(a)*0.22,Math.sin(a)*0.25];}
-  if(n.kind==='c'){const k=TOPO.nodes.slice(0,i).filter(m=>m.kind==='c').length,a=k/CONJ.length*Math.PI*2+0.3;return [Math.cos(a)*0.7,-0.05+Math.sin(a)*0.3,Math.sin(a)*0.35];}
-  const k=TOPO.nodes.slice(0,i).filter(m=>m.kind==='m').length;return [(k-(MOTOR.length-1)/2)*0.3,-0.82+(k%2)*0.1,0.1];
-});
+const B3=(()=>{
+  const inter=TOPO.nodes.map((n,i)=>i).filter(i=>TOPO.nodes[i].kind==='i');
+  const dec=inter.filter(i=>TOPO.nodes[i].name.startsWith('D.')),drv=inter.filter(i=>!TOPO.nodes[i].name.startsWith('D.'));
+  const conj=TOPO.nodes.map((n,i)=>i).filter(i=>TOPO.nodes[i].kind==='c'),mot=TOPO.nodes.map((n,i)=>i).filter(i=>TOPO.nodes[i].kind==='m');
+  return TOPO.nodes.map((n,i)=>{const r=rng(1000+i);
+    const ell=(cx,cy,cz,ax,ay,az)=>{let x,y,z;do{x=r()*2-1;y=r()*2-1;z=r()*2-1;}while(x*x+y*y+z*z>1);return [cx+x*ax,cy+y*ay,cz+z*az];};
+    if(n.kind==='s'){const side=i%2?1:-1;return ell(side*1.35,0.05,0,0.32,0.62,0.32);}
+    if(n.kind==='r')return ell(0,0.12,0,0.85,0.5,0.45);
+    if(n.kind==='i'){if(n.name.startsWith('D.')){const k=dec.indexOf(i),a=k/dec.length*Math.PI*2+0.5;return [Math.cos(a)*0.2,0.2+Math.sin(a)*0.12,Math.sin(a)*0.15];}
+      const k=drv.indexOf(i),a=k/drv.length*Math.PI*2;return [Math.cos(a)*0.55,0.18+Math.sin(a)*0.3,Math.sin(a)*0.3];}
+    if(n.kind==='c'){const k=conj.indexOf(i),a=k/conj.length*Math.PI*2+0.3;return [Math.cos(a)*0.85,-0.08+Math.sin(a)*0.36,Math.sin(a)*0.4];}
+    const k=mot.indexOf(i);return [(k-(mot.length-1)/2)*0.22,-0.84+(k%2)*0.1,0.1];
+  });
+})();
 const proj=new Array(TOPO.nodes.length);let bRot=0.4,bDrag=null,bHover=-1,bAuto=true;
-bcv.addEventListener('pointerdown',e=>{bDrag={x:e.clientX,r:bRot};bAuto=false;bcv.setPointerCapture(e.pointerId);});
+bcv.addEventListener('pointerdown',e=>{bDrag={x:e.clientX,r:bRot};bAuto=false;try{bcv.setPointerCapture(e.pointerId);}catch(_){}});
 bcv.addEventListener('pointermove',e=>{const rc=bcv.getBoundingClientRect();
   if(bDrag){bRot=bDrag.r+(e.clientX-bDrag.x)*0.01;return;}
   const mx=e.clientX-rc.left,my=e.clientY-rc.top;let best=-1,bd=10;proj.forEach((p,i)=>{if(!p)return;const d=Math.hypot(p[0]-mx,p[1]-my);if(d<bd){bd=d;best=i;}});bHover=best;});
@@ -928,21 +1424,20 @@ bcv.addEventListener('pointerup',()=>{bDrag=null;});bcv.addEventListener('pointe
 const KCOL={s:[120,220,255],i:[255,200,90],c:[255,140,200],m:[140,255,160],r:[170,160,255]};
 function drawBrain(t){
   const w=bcv.clientWidth,h=bcv.clientHeight;if(!w)return;
-  if(bcv.width!==w*DPR){bcv.width=w*DPR;bcv.height=h*DPR;}
+  if(bcv.width!==w*DPR||bcv.height!==h*DPR){bcv.width=w*DPR;bcv.height=h*DPR;}
   bg.setTransform(DPR,0,0,DPR,0,0);bg.fillStyle='#0b0e18';bg.fillRect(0,0,w,h);
   if(bAuto)bRot=0.4+Math.sin(t*0.00025)*0.55;
   const ca=Math.cos(bRot),sa=Math.sin(bRot),S=w/3.7,SY=h/2.25,cx=w/2,cy=h*0.48;
   const P=(x,y,z)=>{const X=x*ca-z*sa,Z=x*sa+z*ca,k=3/(3+Z);return [cx+X*S*k,cy-y*SY*k,k];};
   for(let i=0;i<B3.length;i++)proj[i]=P(...B3[i]);
-  // silhueta: lobos ópticos + cérebro central
-  for(const [x,y,rx,ry] of [[-1.35,0.05,0.42,0.72],[1.35,0.05,0.42,0.72],[0,0.12,1.0,0.65],[0,-0.78,0.75,0.18]]){
+  for(const [x,y,rx,ry] of [[-1.35,0.05,0.42,0.72],[1.35,0.05,0.42,0.72],[0,0.12,1.0,0.65],[0,-0.8,0.95,0.18]]){
     const p=P(x,y,0),g=bg.createRadialGradient(p[0],p[1],0,p[0],p[1],rx*S*p[2]);g.addColorStop(0,'rgba(110,120,200,.16)');g.addColorStop(1,'rgba(110,120,200,0)');
     bg.fillStyle=g;bg.beginPath();bg.ellipse(p[0],p[1],rx*S*p[2]*1.05,ry*SY*p[2]*1.05,0,0,Math.PI*2);bg.fill();}
   const s=selected,B=s?.brain;
   const E=TOPO.edges;bg.lineCap='round';
   for(let e=0;e<E.length;e++){const ed=E[e],a=proj[ed.s],b=proj[ed.d];const f=B?B.flow[e]:0,af=Math.abs(f);
     const hl=bHover>=0&&(ed.s===bHover||ed.d===bHover);
-    if(ed.res&&af<0.12&&!hl)continue;
+    if((ed.res&&af<0.12&&!hl)||(!hl&&af<0.02&&!ed.mul&&B))continue;
     const al=hl?0.85:clamp(0.04+af*0.55,0.04,0.7)*(ed.res?0.6:1);
     const ex=ed.mul?[255,140,200]:(ed.w*(B?Math.sign(B.a[ed.s])||1:1))>=0?[255,165,70]:[80,160,255];
     bg.strokeStyle=`rgba(${ex[0]},${ex[1]},${ex[2]},${al})`;bg.lineWidth=(ed.res?0.5:0.7)+Math.min(2,af*1.5);
@@ -956,7 +1451,8 @@ function drawBrain(t){
     const rad=(n.kind==='r'?1.3:2.6)+av*(n.kind==='r'?1.8:4);
     if(av>0.2){bg.fillStyle=`rgba(${c[0]},${c[1]},${c[2]},${av*0.25})`;bg.beginPath();bg.arc(p[0],p[1],rad*2.6,0,Math.PI*2);bg.fill();}
     bg.fillStyle=`rgba(${c[0]},${c[1]},${c[2]},${0.35+av*0.65})`;bg.beginPath();bg.arc(p[0],p[1],rad,0,Math.PI*2);bg.fill();
-    if(i===bHover||n.kind==='i'||n.kind==='m'||(av>0.35&&n.kind!=='r')){bg.fillStyle=n.kind==='s'?'rgba(180,220,240,.7)':'rgba(240,235,220,.9)';bg.fillText(n.name,p[0],n.kind==='m'?p[1]+rad+10:p[1]-rad-3);}
+    const label=i===bHover||(n.kind==='i'&&(n.name.startsWith('D.')||av>0.3))||n.kind==='m'||(av>0.45&&(n.kind==='s'||n.kind==='c'));
+    if(label){bg.fillStyle=n.kind==='s'?'rgba(180,220,240,.7)':'rgba(240,235,220,.9)';bg.fillText(n.name,p[0],n.kind==='m'?p[1]+rad+10:p[1]-rad-3);}
   }
   if(bHover>=0){const n=TOPO.nodes[bHover],p=proj[bHover];const txt=`${n.kind==='r'?'neurónio '+n.name:n.name} · ${(B?B.a[bHover]:0).toFixed(2)}`;
     bg.font='600 11px Fredoka, sans-serif';const tw=bg.measureText(txt).width+12;bg.fillStyle='rgba(255,250,235,.95)';bg.fillRect(p[0]-tw/2,p[1]+8,tw,17);bg.fillStyle='#2a2030';bg.fillText(txt,p[0],p[1]+20);}
@@ -965,126 +1461,261 @@ function drawBrain(t){
 $('bpStats').textContent=`${TOPO.nodes.length} neurónios · ${TOPO.edges.length} sinapses`;
 
 /* ============================================================
-   HUD
+   HUD, painel da ovelha, mapa mental, diário e gráficos
    ============================================================ */
 const roster=$('roster');
-function buildRoster(){roster.innerHTML='';sheep.forEach(s=>{const d=document.createElement('div');d.className='sh card';d.innerHTML=`<div class="nm"><b>${s.name}</b><span class="st"></span></div><div class="mini"><b style="background:var(--food)"></b></div><div class="mini"><b style="background:var(--water)"></b></div><div class="mini"><b style="background:var(--health)"></b></div>`;
+function buildRoster(){roster.innerHTML='';sheep.forEach(s=>{const d=document.createElement('div');d.className='sh card';
+  d.innerHTML=`<div class="nm"><b>${s.name}</b><span class="st"></span></div><div class="tags"></div><div class="mini"><b style="background:var(--food)"></b></div><div class="mini"><b style="background:var(--water)"></b></div><div class="mini"><b style="background:var(--health)"></b></div>`;
   d.onclick=()=>{select(s,true);};s.card=d;roster.appendChild(d);});}
-function updateHUD(simMs){
-  const d=new Date(simMs);$('clock').textContent=d.toLocaleString('pt-PT',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+const trustLabel=t=>t>0.5?'💚 confia muito em ti':t>0.15?'🙂 confia em ti':t>-0.15?'😐 neutra':t>-0.5?'😟 desconfiada':'😰 tem medo de ti';
+const fmtH=h=>h>=24?`${(h/24).toFixed(1)} dias`:`${Math.ceil(h)} h`;
+function updateHUD(){
+  const d=new Date(state.simMs);$('clock').textContent=d.toLocaleString('pt-PT',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  const si=state.season??2;$('season').textContent=`${SEASONS[si].icon} ${SEASONS[si].name}${state.snow>0.2?' · neve no chão':''}`;
+  $('money').textContent='€'+Math.round(state.money);
   $('hayLvl').style.width=clamp(HAY.level,0,100)+'%';$('waterLvl').style.width=clamp(WATER.level,0,100)+'%';
+  const hc=Math.ceil((100-HAY.level)*CFG.price.hayPerUnit);$('hayCost').textContent=hc>0?`€${hc}`:'cheio';
   const cd=Math.max(0,state.seedCd);$('seedCd').textContent=cd>0?`${Math.ceil(cd)} h`:'';
-  const alive=sheep.filter(s=>s.alive).length;$('alive').textContent=`${alive}/10 vivas`;
-  for(const s of sheep){const c=s.card;if(!c)continue;const bs=c.querySelectorAll('.mini b');bs[0].style.width=s.food+'%';bs[1].style.width=s.water+'%';bs[2].style.width=s.health+'%';
+  const nb=brokenCount();$('fenceInfo').textContent=nb?`${nb} partido${nb>1?'s':''} · €${nb*CFG.price.repair}`:'intacta';$('btnFence').classList.toggle('warn',nb>0);
+  const alive=sheep.filter(s=>s.alive).length;$('alive').textContent=`${alive}/${MAX_SHEEP} vivas`;
+  $('btnDog').classList.toggle('on',!!state.herd);
+  for(const s of sheep){const c=s.card;if(!c)continue;const bs=c.querySelectorAll('.mini b');bs[0].style.width=s.food+'%';bs[1].style.width=s.water+'%';bs[2].style.width=Math.max(0,s.health)+'%';
     c.classList.toggle('dead',!s.alive);c.classList.toggle('sel',s===selected);
-    c.querySelector('.st').textContent=!s.alive?'💀':s.health<50?'🤒':s.act==='bebe'?'💧':s.act==='feno'?'🌾':s.act?'🌱':
-      ({beber:'💧',comer:'🍽️',dormir:'💤',descansar:'😌'})[s.decision()]||((s.food<25||s.water<25)?'❗':'');}
-  if(!selected&&$('bpName').textContent!=='Cérebro'){$('bpName').textContent='Cérebro';$('bpThought').textContent='Clica numa ovelha';$('bpBars').innerHTML='';$('bpDecide').innerHTML='';}
-  if(selected){$('bpName').textContent=selected.name;$('bpThought').textContent=selected.thought();
-    const bars=[['Comida',selected.food,'var(--food)'],['Água',selected.water,'var(--water)'],['Vida',selected.health,'var(--health)'],['Energia',100-selected.fatigue,'var(--energy)']];
+    c.querySelector('.st').textContent=!s.alive?'💀':s.sick?DISEASES[s.sick].icon:s.act==='bebe'?'💧':s.act==='feno'?'🌾':s.act?'🌱':
+      ({beber:'💧',comer:'🍽️',dormir:'💤',descansar:'😌',abrigo:'🏠'})[s.decision()]||((s.food<25||s.water<25)?'❗':'');
+    const tags=[];if(s.uid===state.leaderUid&&s.alive)tags.push('👑');if(s.sex==='m')tags.push('♂');if(s.lamb)tags.push('🍼');if(s.pregnantH!=null)tags.push('🤰');if(s.outside)tags.push('🏃');
+    tags.push(s.alive?`${Math.floor(s.ageDays)}d`:'');c.querySelector('.tags').textContent=tags.join(' ');}
+  if(!selected&&$('bpName').textContent!=='Cérebro'){$('bpName').textContent='Cérebro';$('bpThought').textContent='Clica numa ovelha';$('bpBars').innerHTML='';$('bpDecide').innerHTML='';
+    $('bpInfoRow').classList.add('empty');$('bpActs').classList.add('empty');}
+  if(selected){const s=selected;$('bpName').textContent=`${s.name}${s.sex==='m'?' ♂':''}${s.dark?' (negra)':''}`;$('bpThought').textContent=s.thought();
+    const bars=[['Comida',s.food,'var(--food)'],['Água',s.water,'var(--water)'],['Vida',Math.max(0,s.health),'var(--health)'],['Energia',100-s.fatigue,'var(--energy)']];
     $('bpBars').innerHTML=bars.map(([n,v,c])=>`<div class="bar">${n} ${Math.round(v)}%<i><b style="width:${v}%;background:${c}"></b></i></div>`).join('');
-    // objetivos em competição (neurónios de decisão) — o vencedor fica destacado
-    const B=selected.brain,dec=selected.alive?selected.decision():null;
+    const B=s.brain,dec=s.alive?s.decision():null;
     const opts=[['D.BEBER','beber','💧 Beber','var(--water)'],['D.COMER','comer','🌱 Comer','var(--food)'],['D.DORMIR','dormir','💤 Dormir','var(--energy)'],['D.DESCANSAR','descansar','😌 Descansar','#8fbf7a'],
-      ['SOCIAL',null,'🐑 Rebanho','#d9a0c8'],['VAGUEAR',null,'👀 Explorar','#9fb7d9']];
-    $('bpDecide').innerHTML='<span class="dt">Decisão</span>'+opts.map(([k,d,l,c])=>{const v=Math.round(B.get(k)*100);return `<div class="bar${d&&d===dec?' win':''}">${l}<i><b style="width:${v}%;background:${c}"></b></i></div>`;}).join('');}
+      ['D.ABRIGO','abrigo','🏠 Abrigo','#c99a6b'],['FUGIR',null,'🏃 Fugir','#e06b5b'],['SOCIAL',null,'🐑 Rebanho','#d9a0c8'],['VAGUEAR',null,'👀 Explorar','#9fb7d9']];
+    $('bpDecide').innerHTML='<span class="dt">Decisão</span>'+opts.map(([k,dd,l,c])=>{const v=Math.round(B.get(k)*100);return `<div class="bar${dd&&dd===dec?' win':''}">${l}<i><b style="width:${v}%;background:${c}"></b></i></div>`;}).join('');
+    const stage=s.lamb?'borrego':s.old?'idosa':'adulta',mother=s.motherUid!=null?sheep.find(o=>o.uid===s.motherUid):null;
+    const info=[['Idade',`${Math.floor(s.ageDays)} dias (${stage})`],['Lã',`${Math.round(s.wool)}%`],['Rúmen',`${Math.round(s.rumen)}%`],
+      ['Sente',`${Math.round(s.feel)} °C${s.cold>0.2?' 🥶':s.hot>0.2?' 🥵':''}${s.wet>0.3?' 💦':''}${s.sheltered>=1?' 🏠':s.sheltered>0?' 🌳':''}`],
+      ['Saúde',s.sick?`${DISEASES[s.sick].icon} ${DISEASES[s.sick].name} há ${fmtH(s.sickH)}`:'✔ saudável'],['Confiança',trustLabel(s.trust)],
+      ['Gravidez',s.pregnantH!=null?`🤰 nasce em ${fmtH(s.pregnantH)}`:'—'],['Família',`G${s.gen}${mother?' · mãe: '+mother.name:''}${s.uid===state.leaderUid?' · 👑 líder':''}`],
+      ['Feitio',personality(s.genome)]];
+    $('bpInfo').innerHTML=info.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('');
+    $('bpInfoRow').classList.remove('empty');$('bpActs').classList.remove('empty');
+    const ok=s.alive;$('aShear').disabled=!ok||s.wool<25||s.lamb;$('aShear').textContent=`✂️ Tosquiar${s.wool>=25&&!s.lamb?' +€'+Math.round(s.wool*CFG.price.woolPerUnit):''}`;
+    $('aTreat').disabled=!ok||!s.sick;$('aTreat').textContent=`💊 Tratar${s.sick?' €'+CFG.price.treat:''}`;$('aPet').disabled=!ok;
+    drawMentalMap(s);}
   $('over').hidden=alive>0;
 }
-let toastT=null;function toast(t,ms=3500){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),ms);}
+function drawMentalMap(s){
+  const cv=$('mmap'),w=118;if(cv.width!==w*DPR){cv.width=cv.height=w*DPR;}const g=cv.getContext('2d');g.setTransform(DPR,0,0,DPR,0,0);
+  g.fillStyle='#0b0e18';g.fillRect(0,0,w,w);const sc=w/(2*R),P=(x,z)=>[(x+R)*sc,(z+R)*sc];
+  for(let k=0;k<MEMN*MEMN;k++){const m=s.memory[k],i=k%MEMN,j=(k/MEMN)|0;g.fillStyle=`rgba(${Math.round(150-100*m)},${Math.round(90+120*m)},${Math.round(60+20*m)},.75)`;g.fillRect(i*MEMC*sc+0.5,j*MEMC*sc+0.5,MEMC*sc-1,MEMC*sc-1);}
+  g.strokeStyle='rgba(220,190,140,.8)';g.lineWidth=1.5;g.beginPath();g.arc(w/2,w/2,R*sc,0,Math.PI*2);g.stroke();
+  const mark=(T,col)=>{const [x,z]=P(T.x,T.z);g.fillStyle=col;g.fillRect(x-T.hx*sc,z-T.hz*sc,T.hx*2*sc,Math.max(2,T.hz*2*sc));};
+  mark(WATER,'#4a9fd8');mark(HAY,'#e0a53a');mark(SHED,'rgba(200,150,100,.7)');
+  if(s.memTarget){const [x,z]=P(s.memTarget.x,s.memTarget.z);g.strokeStyle='#ffd34d';g.lineWidth=1.5;g.strokeRect(x-MEMC*sc/2,z-MEMC*sc/2,MEMC*sc,MEMC*sc);}
+  const [x,z]=P(s.pos.x,s.pos.z);g.fillStyle='#fff';g.beginPath();g.arc(x,z,3,0,Math.PI*2);g.fill();
+  g.strokeStyle='#fff';g.beginPath();g.moveTo(x,z);g.lineTo(x+Math.sin(s.heading)*8,z+Math.cos(s.heading)*8);g.stroke();
+}
+let toastT=null;function toast(t,ms=3800){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),ms);}
+
+/* diário + gráficos */
+let diaryTab='list';
+function openDiary(on){$('diary').hidden=!on;if(on)renderDiary();}
+function renderDiary(){
+  if($('diary').hidden)return;
+  $('dList').hidden=diaryTab!=='list';$('dChart').hidden=diaryTab!=='chart';
+  document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===diaryTab));
+  if(diaryTab==='list'){const items=state.diary.slice().reverse();
+    $('dList').innerHTML=items.length?items.map(e=>`<div class="de"><time>${new Date(e.t).toLocaleString('pt-PT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</time><span>${e.i} ${e.x}</span></div>`).join(''):'<p>Ainda não aconteceu nada.</p>';}
+  else drawChart();
+}
+function drawChart(){
+  const cv=$('chart'),w=cv.clientWidth,h=cv.clientHeight;if(!w)return;cv.width=w*DPR;cv.height=h*DPR;const g=cv.getContext('2d');g.setTransform(DPR,0,0,DPR,0,0);
+  g.fillStyle='#fffaf0';g.fillRect(0,0,w,h);const S=state.samples;const L=34,Rt=10,T=10,Bm=24,pw=w-L-Rt,ph=h-T-Bm;
+  g.strokeStyle='#e3d3b0';g.fillStyle='#7a6048';g.font='11px Fredoka, sans-serif';g.lineWidth=1;
+  for(let v=0;v<=100;v+=25){const y=T+ph*(1-v/100);g.beginPath();g.moveTo(L,y);g.lineTo(L+pw,y);g.stroke();g.fillText(v,6,y+4);}
+  if(S.length<2){g.fillText('Os gráficos aparecem depois de algumas horas de simulação.',L+10,T+ph/2);return;}
+  const t0=S[0].t,t1=S[S.length-1].t,X=t=>L+pw*(t-t0)/Math.max(1,t1-t0),Y=v=>T+ph*(1-clamp(v,0,100)/100);
+  const days=(t1-t0)/864e5;g.fillText(days<1.5?`${Math.round((t1-t0)/3.6e6)} h`:`${days.toFixed(1)} dias`,L+pw-50,h-6);
+  const line=(k,col,mul=1,dash)=>{g.strokeStyle=col;g.lineWidth=2;g.setLineDash(dash||[]);g.beginPath();S.forEach((p,i)=>{const x=X(p.t),y=Y(p[k]*mul);i?g.lineTo(x,y):g.moveTo(x,y);});g.stroke();g.setLineDash([]);};
+  line('h','#d9534f');line('f','#e0a53a');line('w','#4a9fd8');line('n','#5d9a3a',10,[5,4]);line('m','#8a6a42',0.5,[2,3]);
+}
 
 /* ============================================================
-   Interacção: seleccionar e pegar nas ovelhas
+   Interacção: seleccionar, pegar, fazer festas, guiar o cão
    ============================================================ */
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),holdTarget=new THREE.Vector3();
 const selRing=new THREE.Mesh(new THREE.RingGeometry(0.95,1.15,40),new THREE.MeshBasicMaterial({color:0xffd34d,transparent:true,opacity:0.9,depthWrite:false,side:THREE.DoubleSide}));
 selRing.rotation.x=-Math.PI/2;selRing.visible=false;scene.add(selRing);
+const herdMark=new THREE.Mesh(new THREE.RingGeometry(0.5,0.75,24),new THREE.MeshBasicMaterial({color:0x6fd0ff,transparent:true,opacity:0.8,depthWrite:false,side:THREE.DoubleSide}));
+herdMark.rotation.x=-Math.PI/2;herdMark.visible=false;scene.add(herdMark);
 let focusOn=null;
 function select(s,focus){selected=s;selRing.visible=!!s;if(focus)focusOn=s;}
-function pickSheep(e){const rc=canvas.getBoundingClientRect();ndc.set((e.clientX-rc.left)/rc.width*2-1,-(e.clientY-rc.top)/rc.height*2+1);ray.setFromCamera(ndc,camera);
-  const hit=ray.intersectObjects(pickables,false)[0];return hit?hit.object.userData.sheep:null;}
+function setRay(e){const rc=canvas.getBoundingClientRect();ndc.set((e.clientX-rc.left)/rc.width*2-1,-(e.clientY-rc.top)/rc.height*2+1);ray.setFromCamera(ndc,camera);}
+function pickSheep(e){setRay(e);const hit=ray.intersectObjects(pickables,false)[0];return hit?hit.object.userData.sheep:null;}
 function groundFromRay(){let y=2;const p=new THREE.Vector3();for(let k=0;k<4;k++){const t=(y-ray.ray.origin.y)/ray.ray.direction.y;if(!(t>0))return null;p.copy(ray.ray.origin).addScaledVector(ray.ray.direction,t);y=H(p.x,p.z);}return p;}
-let down=null;
+let down=null,herdDown=false;
 canvas.addEventListener('pointerdown',e=>{initAudio();const s=pickSheep(e);
-  if(s){controls.enabled=false;down={s,x:e.clientX,y:e.clientY,id:e.pointerId,picked:false};canvas.setPointerCapture(e.pointerId);}
+  if(s){controls.enabled=false;down={s,x:e.clientX,y:e.clientY,picked:false,petted:false};try{canvas.setPointerCapture(e.pointerId);}catch(_){}
+    // carregar sem mexer = festinhas
+    const d0=down;setTimeout(()=>{if(down===d0&&!d0.picked&&s.alive){d0.petted=true;pet(s);select(s);}},550);}
+  else if(state.herd){const p=groundFromRay();if(p){controls.enabled=false;herdDown=true;herdTarget={x:p.x,z:p.z};try{canvas.setPointerCapture(e.pointerId);}catch(_){}}}
 },{capture:true});
 canvas.addEventListener('pointermove',e=>{
   if(down){
-    if(!down.picked&&Math.hypot(e.clientX-down.x,e.clientY-down.y)>5&&down.s.alive){down.picked=true;held=down.s;held.falling=false;held.lying=false;select(held);held.bleat(1.15);canvas.style.cursor='grabbing';}
-    if(down.picked){const rc=canvas.getBoundingClientRect();ndc.set((e.clientX-rc.left)/rc.width*2-1,-(e.clientY-rc.top)/rc.height*2+1);ray.setFromCamera(ndc,camera);
-      const p=groundFromRay();if(p){const r=Math.hypot(p.x,p.z),m=R-1.2;if(r>m){p.x*=m/r;p.z*=m/r;}holdTarget.set(p.x,H(p.x,p.z)+2.4,p.z);}}
+    if(!down.picked&&!down.petted&&Math.hypot(e.clientX-down.x,e.clientY-down.y)>5&&down.s.alive){down.picked=true;held=down.s;held.falling=false;held.lying=false;
+      held.trust=clamp(held.trust-0.2,-1,1);select(held);held.bleat(1.15);canvas.style.cursor='grabbing';}
+    if(down.picked){setRay(e);const p=groundFromRay();if(p){const r=Math.hypot(p.x,p.z),m=R-1.2;if(r>m){p.x*=m/r;p.z*=m/r;}holdTarget.set(p.x,H(p.x,p.z)+2.4,p.z);}}
     return;}
-  canvas.style.cursor=pickSheep(e)?'grab':'';
+  setRay(e);const p=groundFromRay();
+  if(herdDown&&p){herdTarget={x:p.x,z:p.z};return;}
+  if(p){cursorG.x=p.x;cursorG.z=p.z;cursorG.t=performance.now();}
+  canvas.style.cursor=pickSheep(e)?'grab':state.herd?'crosshair':'';
 });
-function endDrag(){if(!down)return;
-  if(down.picked&&held){held.falling=true;held.vy=0;held=null;}
-  else select(down.s,false);
+function endDrag(){
+  if(herdDown){herdDown=false;controls.enabled=true;}
+  if(!down)return;
+  if(down.picked&&held){held.falling=true;held.vy=0;held.outside=false;held=null;}
+  else if(!down.petted)select(down.s,false);
   down=null;controls.enabled=true;canvas.style.cursor='';}
 canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
+canvas.addEventListener('pointerleave',()=>{cursorG.t=0;});
 
 /* ============================================================
-   Estado, gravação e “tempo em que estiveste fora”
+   Estado, mundo, avisos, gravação e tempo em que estiveste fora
    ============================================================ */
-const SAVE_KEY='pasto-ovelhas-v1';
-const state={simMs:Date.now(),speed:1,seedCd:0,seedBoost:0};
+const SAVE_KEY='pasto-ovelhas-v2';
+const state={simMs:Date.now(),speed:1,seedCd:0,seedBoost:0,money:CFG.startMoney,diary:[],samples:[],nextUid:0,snow:0,season:null,leaderUid:null,herd:false,
+  sampleAcc:0,checkAcc:0,foxNight:null};
+let bulk=false,notifyOn=false;
+const alertLast={};
+function alertEv(key,icon,text,o={}){
+  const {notify=true,cooldownH=0}=o;
+  if(cooldownH>0){const last=alertLast[key];if(last!=null&&state.simMs-last<cooldownH*3.6e6)return;alertLast[key]=state.simMs;}
+  state.diary.push({t:state.simMs,i:icon,x:text});if(state.diary.length>400)state.diary.shift();
+  if(!bulk&&!document.hidden)toast(icon+' '+text);
+  if(notify&&notifyOn&&document.hidden&&'Notification' in window&&Notification.permission==='granted'){try{new Notification('🐑 Pasto das Ovelhas',{body:icon+' '+text,tag:key});}catch(e){}}
+  renderDiary();
+}
+function spend(c){if(state.money<c){toast(`💶 Não tens dinheiro suficiente (precisas de €${c}). Tosquia ovelhas para ganhar.`);return false;}state.money-=c;return true;}
+function checkAlerts(){
+  for(const s of sheep){if(!s.alive)continue;
+    if(s.water<20)alertEv('sede-'+s.uid,'💧',`${s.name} está cheia de sede (${Math.round(s.water)}%)`,{cooldownH:4});
+    if(s.food<15&&s.rumen<10)alertEv('fome-'+s.uid,'🍽️',`${s.name} está com muita fome`,{cooldownH:4});
+    if(s.health<35)alertEv('fraca-'+s.uid,'❤️‍🩹',`${s.name} está muito fraca (vida ${Math.round(s.health)}%)`,{cooldownH:6});
+    if(s.cold>0.5)alertEv('frio-'+s.uid,'🥶',`${s.name} está gelada`,{cooldownH:6});}
+  if(WATER.level<3)alertEv('agua0','🚱','O bebedouro está vazio!',{cooldownH:4});
+  let gs=0,gn=0;for(let k=0;k<G*G;k++)if(cellInside[k]){gs+=grass[k];gn++;}
+  if(HAY.level<3&&gs/gn<0.25)alertEv('comida0','🌾','Não há feno e o pasto está quase vazio!',{cooldownH:6});
+}
+// o mundo à volta das ovelhas: estações, relva, neve, cerca, raposa, registos
+function worldStep(h,offline=false){
+  if(h<=0)return;
+  const si=seasonAt(state.simMs);
+  if(si!==state.season){const first=state.season==null;state.season=si;applySeason(si);if(!first)alertEv('estacao-'+si,SEASONS[si].icon,`Chegou ${SEASONS[si].art} ${SEASONS[si].name}`,{notify:false});}
+  const T=airTemp();
+  const tempF=T>30?0.4:T<3?0.2:1;
+  const grow=CFG.grassRegrowPerH*h*SEASONS[si].grow*tempF*(1+env.rain*CFG.rainRegrow+(state.seedBoost>0?3:0))*(state.snow>0.3?0.2:1);
+  for(let k=0;k<G*G;k++)if(cellInside[k]&&grass[k]<1)grass[k]=Math.min(1,grass[k]+grow);
+  if(env.rain>0||env.storm>0)WATER.level=Math.min(100,WATER.level+CFG.rainFillPerH*Math.max(env.rain,env.storm)*h);
+  if(env.snow>0&&T<4)state.snow=Math.min(1,state.snow+0.5*h*env.snow);else state.snow=Math.max(0,state.snow-(T>2?0.4:0.03)*h);
+  state.seedCd=Math.max(0,state.seedCd-h);state.seedBoost=Math.max(0,state.seedBoost-h);
+  // vento forte e trovoadas partem a cerca
+  const wind=env.wx?.wind??0,pBreak=(Math.max(0,wind-30)/40*0.4+env.storm*0.5)*h;
+  if(Math.random()<pBreak)breakRandomFence();
+  // cadáveres são enterrados ao fim de 12 h
+  for(const s of sheep.slice()){if(!s.alive){s.deadH+=h;if(s.deadH>12)removeSheep(s);}}
+  // líder = a adulta mais dominante
+  let L=null;for(const s of sheep)if(s.alive&&!s.lamb&&(!L||s.genome.dom>L.genome.dom))L=s;
+  if(L&&state.leaderUid!==L.uid){const had=state.leaderUid!=null;state.leaderUid=L.uid;if(had)alertEv('lider','👑',`${L.name} é a nova líder do rebanho`,{notify:false});}
+  // raposa: aparece algumas noites (mais vezes se a cerca estiver partida)
+  const nightKey=Math.floor((state.simMs-12*3.6e6)/864e5);
+  if(env.light<0.2&&state.foxNight!==nightKey){state.foxNight=nightKey;
+    if(Math.random()<0.3+(brokenCount()?0.4:0)){
+      if(offline){if(brokenCount()){const prey=sheep.filter(s=>s.alive).sort((a,b)=>(b.lamb-a.lamb)||(a.health-b.health))[0];
+        if(prey&&Math.random()<0.6){prey.health-=prey.lamb?80:45;alertEv('ataque-'+prey.uid,'🦊',`Durante a noite uma raposa entrou pela cerca partida e atacou ${prey.name}!`);if(prey.health<=0)prey.die('ataque de raposa');}}}
+      else if(!fox.active)fox.spawn();}}
+  state.sampleAcc+=h;
+  if(state.sampleAcc>=1){state.sampleAcc=0;const A=sheep.filter(s=>s.alive),n=A.length||1;
+    state.samples.push({t:state.simMs,n:A.length,f:A.reduce((a,s)=>a+s.food,0)/n,w:A.reduce((a,s)=>a+s.water,0)/n,h:A.reduce((a,s)=>a+s.health,0)/n,m:state.money});
+    if(state.samples.length>24*30)state.samples.shift();if(diaryTab==='chart')renderDiary();}
+  state.checkAcc+=h;if(state.checkAcc>=0.25){state.checkAcc=0;checkAlerts();}
+}
+// modelo estatístico do que as ovelhas fazem "em média" (tempo acelerado acima de 60× e tempo offline)
+function statStep(h,offline=false){
+  if(h<=0)return;
+  const night=env.light<0.3;
+  for(const s of sheep.slice()){if(!s.alive||s===held)continue;
+    if(s.water<65&&WATER.level>0){const a=Math.min(100-s.water,WATER.level/CFG.waterUse,CFG.drinkGainPerH*h);s.water+=a;WATER.level-=a*CFG.waterUse;}
+    if(s.rumen<60&&(s.food<85||s.rumen<20)){let need=Math.min(100-s.rumen,CFG.grassEatPerH*CFG.grassFood*h*1.5);
+      const rad=offline?7:12;
+      for(let t=0;t<6&&need>0;t++){const a=Math.random()*Math.PI*2,d=Math.random()*rad,k=cellIdx(s.pos.x+Math.cos(a)*d,s.pos.z+Math.sin(a)*d);
+        if(k>=0&&grass[k]>0.1){const per=CFG.grassFood*GT_MULT[gtype[k]];const e=Math.min(grass[k]-0.05,need/per);grass[k]-=e;s.rumen+=e*per;need-=e*per;}}
+      // offline: se já não há relva por perto, a ovelha anda até outro sítio do pasto com relva (como faria o cérebro dela)
+      if(offline&&need>0&&(!s.outside||brokenCount()>0)){for(let t=0;t<15;t++){const k=(Math.random()*G*G)|0;if(cellInside[k]&&grass[k]>0.4){s.pos.x=-R+((k%G)+0.5)*CELL;s.pos.z=-R+(((k/G)|0)+0.5)*CELL;s.outside=false;break;}}}
+      if(need>0&&HAY.level>0){const a=Math.min(need,HAY.level/CFG.hayUse,CFG.hayGainPerH*h);s.rumen+=a;HAY.level-=a*CFG.hayUse;}}
+    const wantsShelter=s.cold>0.25||s.hot>0.35||env.rain>0;
+    const sheltered=offline?(wantsShelter?0.75:0):s.sheltered;
+    const lying=night?s.fatigue>15:(s.food>70&&s.rumen>40&&Math.random()<0.5);
+    lifeStep(s,h,{lying,sheltered,walk:lying?0:0.3});
+  }
+  contagion(h);
+}
+function offlineAdvance(hours){
+  hours=Math.min(hours,24*7);const d0=state.diary.length;bulk=true;let t=0;
+  try{while(t<hours){const h=Math.min(0.1,hours-t);t+=h;state.simMs+=h*3.6e6;env.light=lightAt(state.simMs);worldStep(h,true);statStep(h,true);}}
+  finally{bulk=false;}
+  if(fox.active){fox.active=false;fox.m.g.visible=false;}
+  updateBlades();updateGroundColors();updateTroughs();
+  return state.diary.slice(d0);
+}
+function summarizeAway(hours,evs){
+  if(hours<0.05)return;const hh=Math.floor(hours),mm=Math.round((hours-hh)*60);
+  const deaths=evs.filter(e=>e.i==='💀').length,births=evs.filter(e=>e.i==='🍼').length,sick=evs.filter(e=>e.i==='🤒').length;
+  const bits=[];if(births)bits.push(`🍼 ${births} nascimento${births>1?'s':''}`);if(sick)bits.push(`🤒 ${sick} doente${sick>1?'s':''}`);if(deaths)bits.push(`💀 ${deaths} morte${deaths>1?'s':''}`);
+  toast(`Passaram ${hh?hh+' h ':''}${mm} min.${bits.length?' '+bits.join(' · ')+' — vê o 📖 Diário.':' O rebanho continua bem.'}`,7000);
+}
 function newGame(){
   const r=rng((Math.random()*1e9)|0);
   for(let k=0;k<G*G;k++){if(!cellInside[k]){grass[k]=0;continue;}const i=k%G,j=(k/G)|0;grass[k]=clamp(0.55+0.35*Math.sin(i*0.4)*Math.cos(j*0.33)+(r()-0.5)*0.3,0.15,1);}
-  HAY.level=60;WATER.level=75;state.simMs=Date.now();state.seedCd=0;state.seedBoost=0;
-  return NAMES.map((name,i)=>{const a=r()*6.28,rr=3+r()*11;return{name,seed:(r()*1e9)|0,x:Math.cos(a)*rr,z:Math.sin(a)*rr+2,h:r()*6.28,food:70+r()*25,water:65+r()*30,health:100,fatigue:15+r()*25,alive:true};});
+  HAY.level=60;WATER.level=75;repairFence();
+  for(const k in alertLast)delete alertLast[k];
+  Object.assign(state,{simMs:Date.now(),seedCd:0,seedBoost:0,money:CFG.startMoney,diary:[],samples:[],nextUid:0,snow:0,leaderUid:null,foxNight:null});
+  if(fox.active){fox.active=false;fox.m.g.visible=false;}
+  const list=NAMES.map(name=>{const sex=name==='Trovão'?'m':'f',col=name==='Carvão'?['d','d']:null;
+    const g=makeGenome((r()*1e9)|0,{sex,col,dom:name==='Trovão'?0.6:undefined});
+    const a=r()*6.28,rr=3+r()*11;
+    return {uid:state.nextUid++,name,genome:g,sex,x:Math.cos(a)*rr,z:Math.sin(a)*rr+2,h:r()*6.28,food:70+r()*25,water:65+r()*30,rumen:40+r()*40,health:100,fatigue:15+r()*25,alive:true,
+      ageDays:25+r()*120,wool:35+r()*55,trust:(r()-0.4)*0.6,gen:1};});
+  alertEv('inicio','🐑','Chegou um rebanho novo: 9 ovelhas e o carneiro Trovão',{notify:false});
+  return list;
 }
-function spawn(list){for(const s of sheep){scene.remove(s.root);scene.remove(s.bubble);}pickables.length=0;sheep=list.map((d,i)=>new Sheep(i,d));select(null);buildRoster();updateBlades();updateGroundColors();updateTroughs();}
-function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({v:1,savedAt:Date.now(),simMs:state.simMs,seedCd:state.seedCd,seedBoost:state.seedBoost,hay:HAY.level,water:WATER.level,
-  grass:Array.from(grass,g=>Math.round(g*100)),sheep:sheep.map(s=>s.serialize())}));}catch(e){}}
-// modelo estatístico do que as ovelhas fazem "em média" (usado no tempo acelerado acima de 60×)
-function statStep(h){
-  if(h<=0)return;
-  for(const s of sheep){if(!s.alive||s===held)continue;const meta=s.lying?CFG.sleepMeta:1;
-    s.food=Math.max(0,s.food-CFG.hungerPerH*meta*h);s.water=Math.max(0,s.water-CFG.thirstPerH*meta*h);
-    if(s.water<70&&WATER.level>0){const a=Math.min(100-s.water,WATER.level/CFG.waterUse,CFG.drinkGainPerH*h);s.water+=a;WATER.level-=a*CFG.waterUse;}
-    if(s.food<70){let need=Math.min(100-s.food,CFG.grassEatPerH*CFG.grassFood*h*1.5);
-      for(let t=0;t<6&&need>0;t++){const a=Math.random()*Math.PI*2,d=Math.random()*6,k=cellIdx(s.pos.x+Math.cos(a)*d,s.pos.z+Math.sin(a)*d);
-        if(k>=0&&grass[k]>0.1){const e=Math.min(grass[k]-0.05,need/CFG.grassFood);grass[k]-=e;s.food+=e*CFG.grassFood;need-=e*CFG.grassFood;}}
-      if(need>0&&HAY.level>0){const a=Math.min(need,HAY.level/CFG.hayUse,CFG.hayGainPerH*h);s.food+=a;HAY.level-=a*CFG.hayUse;}}
-    s.fatigue=clamp(s.fatigue+(env.light<0.4?-CFG.restPerH*0.6:CFG.fatiguePerH)*h,0,100);
-    if(s.food<=0||s.water<=0)s.health-=CFG.dmgPerH*h;else if(s.food>25&&s.water>25)s.health=Math.min(100,s.health+CFG.healPerH*h);
-    if(s.health<=0)s.die();}
-}
-function catchUp(list,hours){
-  // simulação simplificada do tempo em que a página esteve fechada
-  const step=0.1;let t=0;const died=[];
-  const cells=[];for(let k=0;k<G*G;k++)if(cellInside[k])cells.push(k);
-  while(t<hours){const h=Math.min(step,hours-t);t+=h;
-    for(let k of cells)grass[k]=Math.min(1,grass[k]+CFG.grassRegrowPerH*h);
-    for(const s of list){if(!s.alive)continue;
-      s.food=Math.max(0,s.food-CFG.hungerPerH*h);s.water=Math.max(0,s.water-CFG.thirstPerH*h);
-      if(s.water<60&&WATER.level>0){const a=Math.min(100-s.water,WATER.level/CFG.waterUse);s.water+=a;WATER.level-=a*CFG.waterUse;}
-      if(s.food<60){const k=cellIdx(s.x,s.z);
-        if(k>=0&&grass[k]>0.15){const e=Math.min(grass[k],CFG.grassEatPerH*h*2);grass[k]-=e;s.food+=e*CFG.grassFood;}
-        else{let moved=false;for(let tries=0;tries<12;tries++){const kk=cells[(Math.random()*cells.length)|0];if(grass[kk]>0.4){s.x=-R+((kk%G)+0.5)*CELL;s.z=-R+(((kk/G)|0)+0.5)*CELL;moved=true;break;}}
-          if(!moved&&HAY.level>0){const a=Math.min(100-s.food,HAY.level/CFG.hayUse,CFG.hayGainPerH*h);s.food+=a;HAY.level-=a*CFG.hayUse;}}}
-      s.fatigue=clamp(s.fatigue+(Math.random()<0.4?-6:3)*h,0,100);
-      if(s.food<=0||s.water<=0)s.health-=CFG.dmgPerH*h;else if(s.food>25&&s.water>25)s.health=Math.min(100,s.health+CFG.healPerH*h);
-      if(s.health<=0){s.health=0;s.alive=false;died.push(s.name);}}
-  }
-  return died;
-}
+function spawn(list){for(const s of sheep){scene.remove(s.root);scene.remove(s.bubble);}pickables.length=0;sheep=list.map(d=>new Sheep(d));select(null);buildRoster();
+  if(state.season!=null)applySeason(state.season);updateBlades();updateGroundColors();updateTroughs();}
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({v:2,savedAt:Date.now(),simMs:state.simMs,seedCd:state.seedCd,seedBoost:state.seedBoost,hay:HAY.level,water:WATER.level,
+  money:state.money,diary:state.diary,samples:state.samples,nextUid:state.nextUid,snow:state.snow,leaderUid:state.leaderUid,foxNight:state.foxNight,
+  fence:FENCE.map(f=>+f.hp.toFixed(2)),grass:Array.from(grass,g=>Math.round(g*100)),sheep:sheep.map(s=>s.serialize())}));}catch(e){console.warn('save',e);}}
 function load(){
   let d=null;try{d=JSON.parse(localStorage.getItem(SAVE_KEY));}catch(e){}
-  if(!d||!d.sheep){spawn(newGame());toast('Bem-vindo! Tens 10 ovelhas. Dá-lhes feno e água — elas dependem de ti 🐑',6000);return;}
-  d.grass.forEach((g,k)=>grass[k]=g/100);HAY.level=d.hay;WATER.level=d.water;state.seedCd=d.seedCd||0;state.seedBoost=d.seedBoost||0;
-  const away=Math.max(0,(Date.now()-d.savedAt)/3.6e6),hours=Math.min(away,24*7);
-  state.simMs=d.simMs+away*3.6e6;
-  const died=hours>0.02?catchUp(d.sheep,hours):[];
-  spawn(d.sheep);
-  if(away>0.1){const hh=Math.floor(away),mm=Math.round((away-hh)*60);
-    toast(`Estiveste fora ${hh?hh+' h ':''}${mm} min.${died.length?' 💀 Morreram: '+died.join(', '):' O rebanho continua bem.'}`,7000);}
+  if(!d||!d.sheep){spawn(newGame());toast('Bem-vindo! Tens 9 ovelhas e um carneiro. Comida, água, abrigo e cuidados — elas dependem de ti 🐑',7000);return;}
+  d.grass.forEach((g,k)=>grass[k]=g/100);HAY.level=d.hay;WATER.level=d.water;
+  Object.assign(state,{seedCd:d.seedCd||0,seedBoost:d.seedBoost||0,money:d.money??CFG.startMoney,diary:d.diary||[],samples:d.samples||[],nextUid:d.nextUid||0,snow:d.snow||0,leaderUid:d.leaderUid??null,foxNight:d.foxNight??null});
+  (d.fence||[]).forEach((hp,i)=>{if(FENCE[i]){FENCE[i].hp=hp;setFenceVisual(FENCE[i]);}});
+  const away=Math.max(0,(Date.now()-d.savedAt)/3.6e6);
+  state.simMs=d.simMs;spawn(d.sheep);
+  if(away>0.02){const evs=offlineAdvance(away);summarizeAway(away,evs);}
 }
 
 /* botões */
-$('btnHay').onclick=()=>{HAY.level=100;updateTroughs();toast('🌾 Comedouro cheio de feno');};
-$('btnWater').onclick=()=>{WATER.level=100;updateTroughs();toast('💧 Bebedouro cheio');};
-$('btnSeed').onclick=()=>{if(state.seedCd>0){toast(`🌱 A terra ainda está a descansar (${Math.ceil(state.seedCd)} h)`);return;}
-  for(let k=0;k<G*G;k++)if(cellInside[k])grass[k]=Math.min(1,grass[k]+0.3);state.seedCd=CFG.seedCooldownH;state.seedBoost=24;updateBlades();updateGroundColors();toast('🌱 Pasto semeado — vai crescer mais depressa durante um dia');};
+$('btnHay').onclick=()=>{const c=Math.ceil((100-HAY.level)*CFG.price.hayPerUnit);if(c<=0){toast('🌾 O comedouro já está cheio');return;}if(!spend(c))return;HAY.level=100;updateTroughs();
+  for(const s of sheep)if(s.alive&&dist2(s.pos,HAY)<10)s.trust=Math.min(1,s.trust+0.03);alertEv('feno','🌾',`Encheste o comedouro de feno (−€${c})`,{notify:false});};
+$('btnWater').onclick=()=>{WATER.level=100;updateTroughs();for(const s of sheep)if(s.alive&&dist2(s.pos,WATER)<10)s.trust=Math.min(1,s.trust+0.03);toast('💧 Bebedouro cheio (água do poço)');};
+$('btnSeed').onclick=()=>{if(state.seedCd>0){toast(`🌱 A terra ainda está a descansar (${Math.ceil(state.seedCd)} h)`);return;}if(!spend(CFG.price.seed))return;
+  for(let k=0;k<G*G;k++)if(cellInside[k])grass[k]=Math.min(1,grass[k]+CFG.seedAmount);state.seedCd=CFG.seedCooldownH;state.seedBoost=24;updateBlades();updateGroundColors();
+  alertEv('semear','🌱',`Semeaste o pasto (−€${CFG.price.seed}) — cresce mais depressa durante um dia`,{notify:false});};
+$('btnFence').onclick=()=>{const n=brokenCount();if(!n){toast('🔨 A cerca está intacta');return;}if(!spend(n*CFG.price.repair))return;repairFence();alertEv('repara','🔨',`Reparaste a cerca (−€${n*CFG.price.repair})`,{notify:false});};
 const resetGame=()=>{if(confirm('Começar um rebanho novo? As ovelhas atuais perdem-se.')){spawn(newGame());save();}};
 $('btnReset').onclick=resetGame;$('btnAgain').onclick=()=>{spawn(newGame());save();};
 document.querySelectorAll('[data-speed]').forEach(b=>b.onclick=()=>{state.speed=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(x=>x.classList.toggle('on',x===b));});
@@ -1093,9 +1724,19 @@ $('wxsel').onchange=e=>{env.override=e.target.value;applyWeather();};
 $('mute').onclick=e=>{muted=!muted;e.target.textContent=muted?'🔇':'🔊';initAudio();};
 $('paint').onclick=e=>{const on=postMat.uniforms.strength.value<0.5;postMat.uniforms.strength.value=on?1:0;e.target.classList.toggle('on',on);$('frame').style.display=on?'':'none';};
 $('bpToggle').onclick=e=>{const b=$('bpBody');b.classList.toggle('hide');e.target.textContent=b.classList.contains('hide')?'+':'–';};
+$('btnDog').onclick=()=>{state.herd=!state.herd;if(!state.herd){herdTarget=null;herdMark.visible=false;}toast(state.herd?'🐕 Modo cão pastor: arrasta no pasto para mandar o cão. As ovelhas fogem dele.':'🐕 O cão voltou para casa');updateHUD();};
+$('btnDiary').onclick=()=>openDiary(true);$('dClose').onclick=()=>openDiary(false);
+$('diary').addEventListener('click',e=>{if(e.target.id==='diary')openDiary(false);});
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{diaryTab=b.dataset.tab;renderDiary();});
+$('btnNotify').onclick=async()=>{
+  if(!('Notification' in window)){toast('🔔 Este browser não suporta notificações');return;}
+  if(notifyOn){notifyOn=false;$('btnNotify').classList.remove('on');toast('🔕 Avisos desligados');return;}
+  const p=await Notification.requestPermission();notifyOn=p==='granted';$('btnNotify').classList.toggle('on',notifyOn);
+  toast(notifyOn?'🔔 Vais receber avisos quando uma ovelha precisar de ti (com a página aberta noutro separador)':'🔕 Sem permissão para avisos');};
+$('aShear').onclick=()=>{shear(selected);updateHUD();};$('aTreat').onclick=()=>{treat(selected);updateHUD();};$('aPet').onclick=()=>{pet(selected);updateHUD();};
 if(innerWidth<820){$('bpBody').classList.add('hide');$('bpToggle').textContent='+';}
 
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);
+addEventListener('resize',()=>{if(innerWidth<2||innerHeight<2)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);
   rt.setSize(innerWidth*DPR,innerHeight*DPR);postMat.uniforms.res.value.set(innerWidth*DPR,innerHeight*DPR);drawFrame();});
 addEventListener('visibilitychange',()=>{if(document.hidden)save();});
 addEventListener('beforeunload',save);
@@ -1104,49 +1745,49 @@ addEventListener('beforeunload',save);
    Ciclo principal
    ============================================================ */
 const clock=new THREE.Clock();let acc1=0,acc2=0,acc5=0,lastReal=performance.now();
-function catchUpLive(hours){
-  // o separador esteve escondido (o browser pára a animação): simula esse tempo
-  const objs=sheep.map(s=>({...s.serialize()}));
-  const died=catchUp(objs,Math.min(hours,24*7));
-  objs.forEach((o,i)=>{const s=sheep[i];if(!s.alive)return;s.food=o.food;s.water=o.water;s.fatigue=o.fatigue;s.health=Math.max(0,o.health);
-    if(Math.hypot(o.x-s.pos.x,o.z-s.pos.z)>0.01){s.pos.x=o.x;s.pos.z=o.z;}if(!o.alive)s.die();});
-  state.simMs+=hours*3.6e6;
-  if(hours>0.05){const hh=Math.floor(hours),mm=Math.round((hours-hh)*60);toast(`Passaram ${hh?hh+' h ':''}${mm} min enquanto não estavas a ver.${died.length?' 💀 Morreram: '+died.join(', '):''}`,6000);}
-  updateBlades();updateGroundColors();updateTroughs();
+function simFrame(dt){
+  const simDtMs=dt*1000*state.speed,simH=simDtMs/3.6e6;
+  state.simMs+=simDtMs;
+  updateSky(state.simMs,dt);
+  worldStep(simH);
+  const visH=simH*Math.min(1,CFG.maxVisualSpeed/state.speed);
+  for(const s of sheep.slice())s.update(dt,visH);
+  contagion(visH);
+  statStep(simH-visH);
+  dog.update(dt);fox.update(dt);
+  updatePrecip(dt);updateLeaves(dt);
 }
 function tick(){
   requestAnimationFrame(tick);
-  {const now=performance.now(),gap=(now-lastReal)/1000;lastReal=now;if(gap>2)catchUpLive(gap*state.speed/3600);}
-  const dt=Math.min(clock.getDelta(),0.1),simDtMs=dt*1000*state.speed,simH=simDtMs/3.6e6;
-  state.simMs+=simDtMs;
-  // relva cresce (mais depressa com chuva e depois de semear)
-  const grow=CFG.grassRegrowPerH*simH*(1+env.rain*CFG.rainRegrow+(state.seedBoost>0?3:0))*(env.snow?0.2:1);
-  for(let k=0;k<G*G;k++)if(cellInside[k]&&grass[k]<1)grass[k]=Math.min(1,grass[k]+grow);
-  if(env.rain>0)WATER.level=Math.min(100,WATER.level+CFG.rainFillPerH*env.rain*simH);
-  state.seedCd=Math.max(0,state.seedCd-simH);state.seedBoost=Math.max(0,state.seedBoost-simH);
-  const visH=simH*Math.min(1,CFG.maxVisualSpeed/state.speed);
-  for(const s of sheep)s.update(dt,visH);
-  statStep(simH-visH);
-  updateSky(state.simMs,dt);updatePrecip(dt);
-  if(selected){selRing.position.set(selected.pos.x,H(selected.pos.x,selected.pos.z)+0.06,selected.pos.z);selRing.material.opacity=0.6+Math.sin(performance.now()*0.006)*0.3;
-    const v=new THREE.Vector3(selected.pos.x,selected.y+(selected.alive?2.05:1.3),selected.pos.z).project(camera);const tag=$('tag');
+  const now=performance.now(),gap=(now-lastReal)/1000;lastReal=now;
+  if(gap>2){const hrs=gap*state.speed/3600;const evs=offlineAdvance(hrs);summarizeAway(hrs,evs);clock.getDelta();}
+  const dt=Math.min(clock.getDelta(),0.1);
+  simFrame(dt);
+  if(selected){selRing.position.set(selected.pos.x,H(selected.pos.x,selected.pos.z)+0.06,selected.pos.z);selRing.material.opacity=0.6+Math.sin(now*0.006)*0.3;
+    const v=new THREE.Vector3(selected.pos.x,selected.y+(selected.alive?2.05*(0.55+0.45*selected.growth):1.3),selected.pos.z).project(camera);const tag=$('tag');
     if(v.z<1){tag.style.display='block';tag.textContent=selected.name;tag.style.left=((v.x+1)/2*innerWidth)+'px';tag.style.top=((1-v.y)/2*innerHeight-(selected.bubble.visible?44:0))+'px';}else tag.style.display='none';}
   else $('tag').style.display='none';
+  if(state.herd&&herdTarget){herdMark.visible=true;herdMark.position.set(herdTarget.x,H(herdTarget.x,herdTarget.z)+0.06,herdTarget.z);}else herdMark.visible=false;
   if(focusOn){controls.target.lerp(new THREE.Vector3(focusOn.pos.x,focusOn.y+0.8,focusOn.pos.z),Math.min(1,dt*3));if(controls.target.distanceTo(focusOn.pos)<1.5)focusOn=null;}
-  {const t=controls.target,r=Math.hypot(t.x,t.z);if(r>20){t.x*=20/r;t.z*=20/r;}t.y=clamp(t.y,0,6);}
+  {const t=controls.target,r=Math.hypot(t.x,t.z);if(r>22){t.x*=22/r;t.z*=22/r;}t.y=clamp(t.y,0,6);}
   controls.update();
   acc1+=dt;acc2+=dt;acc5+=dt;
-  if(acc1>0.5){acc1=0;updateBlades();updateTroughs();updateHUD(state.simMs);}
+  if(acc1>0.5){acc1=0;updateBlades();updateTroughs();updateHUD();updateAmbient(0.5);}
   if(acc2>1.5){acc2=0;updateGroundColors();}
   if(acc5>5){acc5=0;save();}
-  drawBrain(performance.now());
+  drawBrain(now);
   renderer.setRenderTarget(rt);renderer.render(scene,camera);
   renderer.setRenderTarget(null);renderer.render(postScene,postCam);
 }
-load();locate();drawFrame();applyWeather();updateHUD(state.simMs);tick();
-window.__farm={sheep:()=>sheep,state,env,HAY,WATER,grass,hud:()=>updateHUD(state.simMs),
-  step(dt,n){for(let i=0;i<n;i++){const ms=dt*1000*state.speed,h=ms/3.6e6,v=h*Math.min(1,CFG.maxVisualSpeed/state.speed);state.simMs+=ms;updateSky(state.simMs,dt);
-    for(const s of sheep)s.update(dt,v);statStep(h-v);}}};
+// com a página escondida o browser pára a animação: este temporizador continua a simular (e a avisar)
+setInterval(()=>{if(!document.hidden)return;const now=performance.now(),gap=(now-lastReal)/1000;if(gap<20)return;lastReal=now;offlineAdvance(gap*state.speed/3600);save();},30000);
+
+state.season=null;
+load();locate();drawFrame();applyWeather();
+if(state.season==null){state.season=seasonAt(state.simMs);applySeason(state.season);}
+updateHUD();tick();
+window.__farm={sheep:()=>sheep,state,env,HAY,WATER,grass,fox,dog,FENCE,CFG,cursorG,setHerd:t=>{herdTarget=t;},hud:updateHUD,offline:offlineAdvance,breakFence:breakRandomFence,giveBirth,getSick,lifeStep,
+  step(dt,n){for(let i=0;i<n;i++)simFrame(dt);}};
 </script>
 </body>
 </html>
