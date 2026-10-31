@@ -39,6 +39,11 @@ button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .bar{font-size:11px;color:#b9b3a0}
 .bar i{display:block;height:7px;border-radius:5px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:2px}
 .bar i b{display:block;height:100%;border-radius:5px}
+#bpDecide{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 8px;margin:0 0 8px;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.04)}
+#bpDecide:empty{display:none}
+#bpDecide .dt{grid-column:1/-1;font-size:11px;color:#8f8a9c;text-transform:uppercase;letter-spacing:.6px}
+#bpDecide .bar.win{color:#fff3c4;font-weight:600}
+#bpDecide .bar.win i{box-shadow:0 0 0 1px #ffd34d}
 #brain{width:100%;height:290px;display:block;border-radius:10px;background:#0b0e18;cursor:grab}
 .legend{display:flex;justify-content:space-between;font-size:11px;color:#9d97a8;margin-top:5px;gap:6px;flex-wrap:wrap}
 .legend em{font-style:normal}
@@ -107,6 +112,7 @@ button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   </div>
   <div id="bpBody">
     <div id="bpBars"></div>
+    <div id="bpDecide"></div>
     <canvas id="brain"></canvas>
     <div class="legend"><em>🟠 excitatória · 🔵 inibitória</em><em id="bpStats"></em></div>
     <div class="legend"><em>Lobos laterais = sentidos · centro = impulsos · baixo = motores</em></div>
@@ -156,10 +162,10 @@ const CFG={
   hungerPerH:10,            // saciedade 100→0 em ~10 h
   thirstPerH:12.5,          // hidratação 100→0 em ~8 h
   heatThirst:1.35,          // multiplicador quando > 25 °C
-  grassEatPerH:2.5,         // células de relva comidas por hora a pastar
+  grassEatPerH:4,           // células de relva comidas por hora a pastar (refeição de ~45 min)
   grassFood:12,             // saciedade por célula cheia
-  hayGainPerH:80, hayUse:0.1,     // feno: 100 unidades ≈ 1000 de saciedade
-  drinkGainPerH:160, waterUse:0.08,// água: bebedouro cheio ≈ 10 h para 10 ovelhas
+  hayGainPerH:240, hayUse:0.1,     // feno: refeição de ~10 min; 100 unidades ≈ 1000 de saciedade
+  drinkGainPerH:1200, waterUse:0.08,// beber de 50% a 90% leva ~2 min; bebedouro cheio ≈ 10 h para 10 ovelhas
   dmgPerH:8, healPerH:3,    // sem comida ou sem água: vida 100→0 em ~12 h
   grassRegrowPerH:1/(24*25),// relva comida volta a crescer em ~25 dias
   rainRegrow:4, rainFillPerH:4,
@@ -425,34 +431,44 @@ const INTER=[
   ['SEDE','sig',-2.3,1.5,{'sede':4.6}],
   ['MEDO','sig',-2.4,0.5,{'agarrada':5.5,'chuva':0.7,'dor':1.3}],
   ['SONO','sig',-0.2,3,{'cansaço':2.6,'luz':-2.3,'FOME':-1.2,'SEDE':-1.5,'MEDO':-2}],
-  ['SOCIAL','sig',-1.8,2,{'isolada':3.2,'luz':-0.5,'MEDO':1.4,'chuva':0.6,'aperto':-3}],
+  ['SOCIAL','sig',-1.8,2,{'isolada':3.2,'luz':-0.5,'MEDO':1.4,'chuva':0.6,'aperto':-3,'D.BEBER':-2.5,'D.COMER':-1.5,'D.DORMIR':-3,'D.DESCANSAR':-2}],
   // espaço pessoal: quando há vizinhas demasiado perto, afasta-se (contrabalança o SOCIAL)
-  ['ESPAÇO','sig',-2.2,0.6,{'aperto':5,'MEDO':-1.5,'SONO':-1.2}],
-  ['CURIOSA','sig',-0.4,2.5,{'ruído':1.4,'luz':0.6,'FOME':-1.3,'SEDE':-1.3,'SONO':-2,'MEDO':-1}],
-  ['PASTAR','sig',-2.6,0.8,{'relva aqui':3.6,'FOME':3.0,'SEDE':-1.0,'MEDO':-3.5,'SONO':-2.4}],
-  // inibição lateral entre P.ÁGUA / P.FENO / P.RELVA → um só objetivo ganha (winner-take-all)
-  ['P.ÁGUA','sig',-3.4,1,{'SEDE':4.6,'há água':1.2,'MEDO':-2,'FOME':-0.6}],
-  ['P.FENO','sig',-2.4,1,{'FOME':3.6,'há feno':1.6,'relva aqui':-2.4,'relva vista':-2.2,'SEDE':-1.2,'MEDO':-2,'P.ÁGUA':-3}],
-  ['P.RELVA','sig',-2.0,1,{'FOME':3.0,'relva aqui':-3.2,'relva vista':2.0,'SEDE':-1.0,'P.ÁGUA':-3,'P.FENO':-2}],
+  ['ESPAÇO','sig',-2.2,0.6,{'aperto':5,'MEDO':-1.5,'SONO':-1.2,'PASTAR':-2.5,'BEBE':-3}],
+  ['CURIOSA','sig',-0.4,2.5,{'ruído':1.4,'luz':0.6,'FOME':-1.3,'SEDE':-1.3,'SONO':-2,'MEDO':-1,'D.DESCANSAR':-1.5}],
+  /* --- camada de DECISÃO (seleção de ação) ---
+     Cada D.* é um objetivo. Auto-excitação = compromisso (uma vez decidido, só pára quando a
+     necessidade está satisfeita: começa a beber com ~50% de água e pára perto de 90%).
+     Inibição mútua = só um objetivo ganha; a sede pesa mais do que a fome (é mais urgente). */
+  ['D.BEBER','sig',-2.6,1,{'SEDE':5.5,'D.BEBER':2.2,'D.COMER':-2.5,'D.DORMIR':-2,'D.DESCANSAR':-1.5,'MEDO':-3}],
+  ['D.COMER','sig',-2.6,1,{'FOME':5.0,'D.COMER':2.6,'D.BEBER':-3.5,'D.DORMIR':-2,'D.DESCANSAR':-1.5,'MEDO':-3}],
+  ['D.DORMIR','sig',-3.2,2,{'SONO':5.0,'D.DORMIR':2.0,'D.BEBER':-3,'D.COMER':-3,'MEDO':-4}],
+  ['D.DESCANSAR','sig',1.3,3,{'FOME':-4,'SEDE':-4,'cansaço':2.5,'ruído':-2.2,'luz':0.3,'D.DESCANSAR':2.0,'D.BEBER':-3,'D.COMER':-3,'D.DORMIR':-2,'MEDO':-3,'CURIOSA':-0.6}],
+  // --- execução: como cumprir o objetivo escolhido ---
+  ['PASTAR','sig',-3.4,0.8,{'relva aqui':3.4,'D.COMER':4.2,'FOME':1.0,'D.BEBER':-3.5,'D.DORMIR':-3,'D.DESCANSAR':-3,'MEDO':-3.5}],
+  ['P.ÁGUA','sig',-2.8,1,{'D.BEBER':5.5,'MEDO':-2}],
+  ['P.FENO','sig',-3.0,1,{'D.COMER':3.8,'há feno':1.6,'relva aqui':-2.4,'relva vista':-2.6,'D.BEBER':-3,'MEDO':-2}],
+  ['P.RELVA','sig',-2.6,1,{'D.COMER':3.8,'relva aqui':-4,'relva vista':2.0,'D.BEBER':-3,'P.FENO':-2}],
   ['EVITAR','sig',-1.6,0.3,{'cerca perto':5}],
-  ['VAGUEAR','sig',-0.6,2,{'CURIOSA':2.6,'SOCIAL':-0.8,'aperto':1.2}],
+  ['VAGUEAR','sig',-0.6,2,{'CURIOSA':2.6,'SOCIAL':-0.8,'aperto':1.2,'D.BEBER':-3,'D.COMER':-2,'D.DORMIR':-3,'D.DESCANSAR':-3}],
 ];
 // neurónios de conjunção (multiplicativos): direção × impulso
 const CONJ=[
   ['→FENO','feno ◀▶','P.FENO'],['→ÁGUA','água ◀▶','P.ÁGUA'],['→RELVA','relva ◀▶','P.RELVA'],['→REBANHO','rebanho ◀▶','SOCIAL'],
   ['→CERCA','cerca ◀▶','EVITAR'],['→VAGUEAR','vaguear ◀▶','VAGUEAR'],['COME FENO','feno perto','P.FENO'],['BEBE','água perto','P.ÁGUA'],
   ['ESPREITA','olhar rnd','CURIOSA'],['VIGIA','vizinha ◀▶','SOCIAL'],['→AFASTAR','vizinha ◀▶','ESPAÇO'],
+  ['COME RELVA','relva aqui','PASTAR'],   // só baixa a cabeça para pastar se houver mesmo relva
 ];
 const MOTOR=[
   ['VIRAR','tanh',0,0.25,{'→FENO':3,'→ÁGUA':3.4,'→RELVA':2.2,'→REBANHO':1.6,'→CERCA':-4,'→VAGUEAR':1.8,'→AFASTAR':-3}],
-  ['ANDAR','sig',-1.2,0.5,{'P.FENO':2.6,'P.ÁGUA':3.0,'P.RELVA':2.4,'SOCIAL':1.2,'VAGUEAR':1.6,'ESPAÇO':1.6,'MEDO':1.8,'EVITAR':0.8,'PASTAR':-3.5,'SONO':-3.2,'COME FENO':-5,'BEBE':-5.5}],
-  ['BAIXAR CABEÇA','sig',-1.6,0.4,{'PASTAR':3.4,'COME FENO':4.5,'BEBE':5,'MEDO':-3,'SONO':-1.5}],
+  ['ANDAR','sig',-1.2,0.5,{'P.FENO':2.6,'P.ÁGUA':3.0,'P.RELVA':2.4,'SOCIAL':1.2,'VAGUEAR':1.6,'ESPAÇO':1.6,'MEDO':1.8,'EVITAR':0.8,'COME RELVA':-6,'D.DORMIR':-3.2,'D.DESCANSAR':-2.5,'COME FENO':-5,'BEBE':-5.5}],
+  ['BAIXAR CABEÇA','sig',-1.6,0.4,{'COME RELVA':6,'COME FENO':4.5,'BEBE':5,'MEDO':-3,'D.DORMIR':-1.5}],
   ['OLHAR H','tanh',0,0.5,{'→FENO':1.4,'→ÁGUA':1.4,'→RELVA':1.0,'VIGIA':1.6,'ESPREITA':2.4}],
   ['OLHAR V','tanh',0,0.6,{'MEDO':1.2,'CURIOSA':0.4,'SONO':-0.8}],
-  ['DEITAR','sig',-2.4,2,{'SONO':5,'MEDO':-3}],
+  ['DEITAR','sig',-2.4,2,{'D.DORMIR':5,'D.DESCANSAR':4.5,'MEDO':-3}],
   ['BALIR','sig',-4.2,0.4,{'MEDO':3.6,'isolada':1.6,'SEDE':1.3,'FOME':0.9}],
   ['CAUDA','tanh',0,0.3,{'CURIOSA':1,'MEDO':1.5,'PASTAR':0.6}],
 ];
+const DECISIONS=[['D.BEBER','beber'],['D.COMER','comer'],['D.DORMIR','dormir'],['D.DESCANSAR','descansar']];
 const NRES=180;
 const TOPO=(()=>{
   const nodes=[],edges=[],idx={};
@@ -679,14 +695,24 @@ class Sheep{
     if(!this.alive)return 'Morreu… 🥀';
     if(this===held)return 'Ai! Põe-me no chão! 😨';
     if(this.falling)return 'Aaaah! 😱';
-    if(this.act==='bebe')return 'A beber água 💧';
-    if(this.act==='feno')return 'A comer feno 🌾';
-    if(this.act==='pasta')return 'A pastar relva 🌱';
-    if(this.lying)return env.light<0.4?'A dormir 💤':'A descansar 😌';
-    const B=this.brain,c=[['MEDO','Assustada 😨'],['P.ÁGUA','À procura de água 💧'],['P.FENO','A caminho do feno 🌾'],['P.RELVA','À procura de relva fresca 🌱'],['SOCIAL','A juntar-se ao rebanho 🐑'],['VAGUEAR','A explorar 👀']];
-    let best=null,bv=0.45;for(const [k,t] of c){const v=B.get(k);if(v>bv){bv=v;best=t;}}
-    return best||'A ruminar… 🌀';
+    const B=this.brain,f=Math.round(this.food),w=Math.round(this.water);
+    if(B.get('MEDO')>0.6)return 'Assustada! 😨';
+    if(this.act==='bebe')return `A beber até matar a sede (água ${w}%) 💧`;
+    if(this.act==='feno')return `A comer feno até ficar cheia (${f}%) 🌾`;
+    if(this.act==='pasta')return `A pastar até ficar cheia (${f}%) 🌱`;
+    switch(this.decision()){
+      case 'beber':return WATER.level>1?`Tenho sede (água ${w}%) → vou ao bebedouro 💧`:'Tenho sede e o bebedouro está vazio! 😟';
+      case 'comer':return B.get('P.FENO')>B.get('P.RELVA')?(HAY.level>1?`Tenho fome (${f}%) e há pouca relva → vou ao feno 🌾`:'Tenho fome e não há comida! 😟'):`Tenho fome (${f}%) → à procura de relva 🌱`;
+      case 'dormir':return this.lying?'A dormir 💤':'Com sono → à procura de sítio para deitar 😪';
+      case 'descansar':return this.lying?'Barriga cheia → deitada a ruminar 😌':'Satisfeita → vou descansar 😌';
+    }
+    if(B.get('ESPAÇO')>0.55)return 'Muita gente aqui → a afastar-me 🙄';
+    if(B.get('SOCIAL')>0.5)return 'Longe do rebanho → a voltar 🐑';
+    if(B.get('VAGUEAR')>0.45)return 'Satisfeita → a explorar 👀';
+    return 'A ruminar… 🌀';
   }
+  // objetivo atual = neurónio de decisão mais ativo (se passar o limiar)
+  decision(){const B=this.brain;let best=null,bv=0.5;for(const [k,n] of DECISIONS){const v=B.get(k);if(v>bv){bv=v;best=n;}}return best;}
 }
 
 /* ============================================================
@@ -951,10 +977,16 @@ function updateHUD(simMs){
   const alive=sheep.filter(s=>s.alive).length;$('alive').textContent=`${alive}/10 vivas`;
   for(const s of sheep){const c=s.card;if(!c)continue;const bs=c.querySelectorAll('.mini b');bs[0].style.width=s.food+'%';bs[1].style.width=s.water+'%';bs[2].style.width=s.health+'%';
     c.classList.toggle('dead',!s.alive);c.classList.toggle('sel',s===selected);
-    c.querySelector('.st').textContent=!s.alive?'💀':s.health<50?'🤒':s.lying?'💤':s.act==='bebe'?'💧':s.act?'🌱':(s.food<25||s.water<25)?'❗':'';}
+    c.querySelector('.st').textContent=!s.alive?'💀':s.health<50?'🤒':s.act==='bebe'?'💧':s.act==='feno'?'🌾':s.act?'🌱':
+      ({beber:'💧',comer:'🍽️',dormir:'💤',descansar:'😌'})[s.decision()]||((s.food<25||s.water<25)?'❗':'');}
   if(selected){$('bpName').textContent=selected.name;$('bpThought').textContent=selected.thought();
     const bars=[['Comida',selected.food,'var(--food)'],['Água',selected.water,'var(--water)'],['Vida',selected.health,'var(--health)'],['Energia',100-selected.fatigue,'var(--energy)']];
-    $('bpBars').innerHTML=bars.map(([n,v,c])=>`<div class="bar">${n} ${Math.round(v)}%<i><b style="width:${v}%;background:${c}"></b></i></div>`).join('');}
+    $('bpBars').innerHTML=bars.map(([n,v,c])=>`<div class="bar">${n} ${Math.round(v)}%<i><b style="width:${v}%;background:${c}"></b></i></div>`).join('');
+    // objetivos em competição (neurónios de decisão) — o vencedor fica destacado
+    const B=selected.brain,dec=selected.alive?selected.decision():null;
+    const opts=[['D.BEBER','beber','💧 Beber','var(--water)'],['D.COMER','comer','🌱 Comer','var(--food)'],['D.DORMIR','dormir','💤 Dormir','var(--energy)'],['D.DESCANSAR','descansar','😌 Descansar','#8fbf7a'],
+      ['SOCIAL',null,'🐑 Rebanho','#d9a0c8'],['VAGUEAR',null,'👀 Explorar','#9fb7d9']];
+    $('bpDecide').innerHTML='<span class="dt">Decisão</span>'+opts.map(([k,d,l,c])=>{const v=Math.round(B.get(k)*100);return `<div class="bar${d&&d===dec?' win':''}">${l}<i><b style="width:${v}%;background:${c}"></b></i></div>`;}).join('');}
   $('over').hidden=alive>0;
 }
 let toastT=null;function toast(t,ms=3500){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),ms);}
@@ -1111,7 +1143,7 @@ function tick(){
   renderer.setRenderTarget(null);renderer.render(postScene,postCam);
 }
 load();locate();drawFrame();applyWeather();updateHUD(state.simMs);tick();
-window.__farm={sheep:()=>sheep,state,env,HAY,WATER,grass,
+window.__farm={sheep:()=>sheep,state,env,HAY,WATER,grass,hud:()=>updateHUD(state.simMs),
   step(dt,n){for(let i=0;i<n;i++){const ms=dt*1000*state.speed,h=ms/3.6e6,v=h*Math.min(1,CFG.maxVisualSpeed/state.speed);state.simMs+=ms;updateSky(state.simMs,dt);
     for(const s of sheep)s.update(dt,v);statStep(h-v);}}};
 </script>
