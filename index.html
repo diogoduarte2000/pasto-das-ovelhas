@@ -979,6 +979,7 @@ function updateHUD(simMs){
     c.classList.toggle('dead',!s.alive);c.classList.toggle('sel',s===selected);
     c.querySelector('.st').textContent=!s.alive?'💀':s.health<50?'🤒':s.act==='bebe'?'💧':s.act==='feno'?'🌾':s.act?'🌱':
       ({beber:'💧',comer:'🍽️',dormir:'💤',descansar:'😌'})[s.decision()]||((s.food<25||s.water<25)?'❗':'');}
+  if(!selected&&$('bpName').textContent!=='Cérebro'){$('bpName').textContent='Cérebro';$('bpThought').textContent='Clica numa ovelha';$('bpBars').innerHTML='';$('bpDecide').innerHTML='';}
   if(selected){$('bpName').textContent=selected.name;$('bpThought').textContent=selected.thought();
     const bars=[['Comida',selected.food,'var(--food)'],['Água',selected.water,'var(--water)'],['Vida',selected.health,'var(--health)'],['Energia',100-selected.fatigue,'var(--energy)']];
     $('bpBars').innerHTML=bars.map(([n,v,c])=>`<div class="bar">${n} ${Math.round(v)}%<i><b style="width:${v}%;background:${c}"></b></i></div>`).join('');
